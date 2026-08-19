@@ -1,0 +1,53 @@
+"""Approved W01 domain surface."""
+
+from arch_web.domain.enums import (
+    ArchitectureChoice,
+    ProjectKind,
+    RequirementCategory,
+    RequirementPriority,
+    RequirementStatus,
+    RouteVisibility,
+    SurfaceType,
+    WebLifecycleStatus,
+    WebRoute,
+)
+from arch_web.domain.errors import (
+    UnsupportedWebContractVersionError,
+    WebContractError,
+    WebContractIntegrityError,
+    WebContractReferenceError,
+    WebContractValidationError,
+)
+from arch_web.domain.information_architecture import WebInformationArchitectureContract
+from arch_web.domain.project import WebProjectProfile
+from arch_web.domain.references import ContractRef, DesignReference, EvidenceRef
+from arch_web.domain.requirements import WebRequirement, WebRequirementsContract
+from arch_web.domain.stack import WebStackProfile
+from arch_web.domain.surfaces import WebRouteContract, WebSurface
+
+__all__ = (
+    "ArchitectureChoice",
+    "ContractRef",
+    "DesignReference",
+    "EvidenceRef",
+    "ProjectKind",
+    "RequirementCategory",
+    "RequirementPriority",
+    "RequirementStatus",
+    "RouteVisibility",
+    "SurfaceType",
+    "UnsupportedWebContractVersionError",
+    "WebContractError",
+    "WebContractIntegrityError",
+    "WebContractReferenceError",
+    "WebContractValidationError",
+    "WebInformationArchitectureContract",
+    "WebLifecycleStatus",
+    "WebProjectProfile",
+    "WebRequirement",
+    "WebRequirementsContract",
+    "WebRoute",
+    "WebRouteContract",
+    "WebStackProfile",
+    "WebSurface",
+)
