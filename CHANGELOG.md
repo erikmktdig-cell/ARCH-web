@@ -10,3 +10,7 @@
 - WP-W02 immutable Product Brief, intake, findings, route recommendation, and review contracts.
 - Deterministic requirements derivation, normalization, gap/conflict analysis, and readiness.
 - Explicit requirements approval bridge through the public ARCH Runtime API.
+- WP-W03 deterministic surface, route, navigation, journey, and requirement-coverage planning.
+- Framework-neutral route normalization using the canonical brace parameter grammar.
+- Architecture findings, route-aware readiness, canonical review evidence, and codec support.
+- Explicit architecture approval through the public ARCH Runtime API with exact fingerprints.

@@ -1,5 +1,18 @@
 """ARCH Web application workflows."""
 
+from arch_web.application.architecture import (
+    ApproveArchitectureCommand,
+    ApproveArchitectureResult,
+    ArchitectureApprovalError,
+    ArchitecturePreparationError,
+    ArchitectureWorkflowError,
+    PrepareArchitectureCommand,
+    PrepareArchitectureResult,
+    analyze_architecture,
+    normalize_route_path,
+    plan_information_architecture,
+    prepare_architecture,
+)
 from arch_web.application.requirements import (
     ApproveRequirementsCommand,
     ApproveRequirementsResult,
@@ -17,8 +30,15 @@ from arch_web.application.requirements import (
 )
 
 __all__ = (
+    "ApproveArchitectureCommand",
+    "ApproveArchitectureResult",
     "ApproveRequirementsCommand",
     "ApproveRequirementsResult",
+    "ArchitectureApprovalError",
+    "ArchitecturePreparationError",
+    "ArchitectureWorkflowError",
+    "PrepareArchitectureCommand",
+    "PrepareArchitectureResult",
     "PrepareRequirementsCommand",
     "PrepareRequirementsResult",
     "RequirementAnswer",
@@ -29,5 +49,9 @@ __all__ = (
     "RequirementsConflictError",
     "RequirementsIncompleteError",
     "RequirementsWorkflowError",
+    "analyze_architecture",
+    "normalize_route_path",
+    "plan_information_architecture",
+    "prepare_architecture",
     "prepare_requirements",
 )

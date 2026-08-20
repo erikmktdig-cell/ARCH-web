@@ -1,5 +1,14 @@
 """Approved ARCH Web domain surface."""
 
+from arch_web.domain.architecture_review import (
+    ArchitectureFinding,
+    ArchitectureFindingCode,
+    ArchitectureFindingSeverity,
+    ArchitectureReadiness,
+    ArchitectureReviewPackage,
+    CoverageDisposition,
+    RequirementCoverage,
+)
 from arch_web.domain.enums import (
     ArchitectureChoice,
     ProjectKind,
@@ -19,6 +28,15 @@ from arch_web.domain.errors import (
     WebContractValidationError,
 )
 from arch_web.domain.information_architecture import WebInformationArchitectureContract
+from arch_web.domain.navigation import (
+    NavigationEdge,
+    NavigationKind,
+    NavigationModel,
+    NavigationNode,
+    NavigationRelationship,
+    NavigationVisibility,
+    UserJourney,
+)
 from arch_web.domain.product_brief import WebProductBrief
 from arch_web.domain.project import WebProjectProfile
 from arch_web.domain.references import ContractRef, DesignReference, EvidenceRef
@@ -36,13 +54,26 @@ from arch_web.domain.surfaces import WebRouteContract, WebSurface
 
 __all__ = (
     "ArchitectureChoice",
+    "ArchitectureFinding",
+    "ArchitectureFindingCode",
+    "ArchitectureFindingSeverity",
+    "ArchitectureReadiness",
+    "ArchitectureReviewPackage",
     "ContractRef",
+    "CoverageDisposition",
     "DesignReference",
     "EvidenceRef",
     "FindingCode",
     "FindingSeverity",
+    "NavigationEdge",
+    "NavigationKind",
+    "NavigationModel",
+    "NavigationNode",
+    "NavigationRelationship",
+    "NavigationVisibility",
     "ProjectKind",
     "RequirementCategory",
+    "RequirementCoverage",
     "RequirementFinding",
     "RequirementPriority",
     "RequirementStatus",
@@ -52,6 +83,7 @@ __all__ = (
     "RouteVisibility",
     "SurfaceType",
     "UnsupportedWebContractVersionError",
+    "UserJourney",
     "WebContractError",
     "WebContractIntegrityError",
     "WebContractReferenceError",

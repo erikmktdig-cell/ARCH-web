@@ -9,6 +9,15 @@ from typing import Any, cast
 
 from arch_web.contracts.canonical import canonical_bytes
 from arch_web.domain._base import WebContractRecord
+from arch_web.domain.architecture_review import (
+    ArchitectureFinding,
+    ArchitectureFindingCode,
+    ArchitectureFindingSeverity,
+    ArchitectureReadiness,
+    ArchitectureReviewPackage,
+    CoverageDisposition,
+    RequirementCoverage,
+)
 from arch_web.domain.enums import (
     ArchitectureChoice,
     ProjectKind,
@@ -22,6 +31,15 @@ from arch_web.domain.enums import (
 )
 from arch_web.domain.errors import WebContractIntegrityError, WebContractValidationError
 from arch_web.domain.information_architecture import WebInformationArchitectureContract
+from arch_web.domain.navigation import (
+    NavigationEdge,
+    NavigationKind,
+    NavigationModel,
+    NavigationNode,
+    NavigationRelationship,
+    NavigationVisibility,
+    UserJourney,
+)
 from arch_web.domain.product_brief import WebProductBrief
 from arch_web.domain.project import WebProjectProfile
 from arch_web.domain.references import ContractRef, DesignReference, EvidenceRef
@@ -123,6 +141,45 @@ def decode_contract_data[ContractT: WebContractRecord](
             data["surfaces"] = tuple(WebSurface.from_data(item) for item in data["surfaces"])
             data["routes"] = tuple(WebRouteContract.from_data(item) for item in data["routes"])
             result = WebInformationArchitectureContract(**data)
+        elif contract_class is NavigationNode:
+            data["navigation_kind"] = NavigationKind(data["navigation_kind"])
+            data["visibility"] = NavigationVisibility(data["visibility"])
+            result = NavigationNode(**data)
+        elif contract_class is NavigationEdge:
+            data["relationship"] = NavigationRelationship(data["relationship"])
+            result = NavigationEdge(**data)
+        elif contract_class is UserJourney:
+            result = UserJourney(**data)
+        elif contract_class is NavigationModel:
+            data["nodes"] = tuple(NavigationNode.from_data(item) for item in data["nodes"])
+            data["edges"] = tuple(NavigationEdge.from_data(item) for item in data["edges"])
+            data["journeys"] = tuple(UserJourney.from_data(item) for item in data["journeys"])
+            result = NavigationModel(**data)
+        elif contract_class is RequirementCoverage:
+            data["disposition"] = CoverageDisposition(data["disposition"])
+            result = RequirementCoverage(**data)
+        elif contract_class is ArchitectureFinding:
+            data["code"] = ArchitectureFindingCode(data["code"])
+            data["severity"] = ArchitectureFindingSeverity(data["severity"])
+            result = ArchitectureFinding(**data)
+        elif contract_class is ArchitectureReviewPackage:
+            for field_name in (
+                "requirements_contract_ref",
+                "requirements_review_ref",
+                "information_architecture_ref",
+                "navigation_model_ref",
+            ):
+                data[field_name] = cast(ContractRef, _contract_ref(data[field_name]))
+            data["route"] = WebRoute(data["route"])
+            data["coverage"] = tuple(
+                RequirementCoverage.from_data(item) for item in data["coverage"]
+            )
+            data["findings"] = tuple(
+                ArchitectureFinding.from_data(item) for item in data["findings"]
+            )
+            data["readiness"] = ArchitectureReadiness(data["readiness"])
+            data["approval_evidence_ref"] = _evidence_ref(data.get("approval_evidence_ref"))
+            result = ArchitectureReviewPackage(**data)
         elif contract_class is WebProjectProfile:
             data["route"] = WebRoute(data["route"])
             data["project_kind"] = ProjectKind(data["project_kind"])

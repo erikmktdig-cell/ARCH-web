@@ -56,7 +56,9 @@ def test_only_runtime_bridge_depends_on_public_arch_runtime() -> None:
         if any(name == "arch_runtime" for name in _imports(path))
     }
     assert runtime_importers == {
+        "application/architecture/models.py",
         "application/requirements/models.py",
+        "runtime_bridge/architecture.py",
         "runtime_bridge/requirements.py",
     }
     assert not any(
