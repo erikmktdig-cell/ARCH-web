@@ -39,6 +39,9 @@ def to_canonical_data(value: object) -> JsonValue:
             for field in fields(value)
             if field.init
         }
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        return to_canonical_data(model_dump(mode="json"))
     if isinstance(value, Mapping):
         if not all(isinstance(key, str) for key in value):
             raise WebContractValidationError("Canonical JSON object keys must be strings")

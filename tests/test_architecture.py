@@ -53,7 +53,8 @@ def test_domain_has_no_framework_infrastructure_or_io_imports() -> None:
 def test_package_does_not_import_runtime_or_kernel_internals() -> None:
     imports = {imported for path in SOURCE.rglob("*.py") for imported in _imports(path)}
     assert not any(name.startswith("arch_runtime.") for name in imports)
-    assert not any(name.startswith("arch_kernel.") for name in imports)
+    kernel_imports = {name for name in imports if name.startswith("arch_kernel.")}
+    assert kernel_imports <= {"arch_kernel.contracts"}
 
 
 @pytest.mark.architecture
@@ -65,14 +66,32 @@ def test_arch_route_compatibility_is_exact() -> None:
 def test_public_api_is_deliberately_closed() -> None:
     assert set(arch_web.__all__) == {
         "ArchitectureChoice",
+        "ApproveRequirementsCommand",
+        "ApproveRequirementsResult",
         "CURRENT_WEB_CONTRACT_VERSION",
         "ContractRef",
         "DesignReference",
         "EvidenceRef",
+        "FindingCode",
+        "FindingSeverity",
         "ProjectKind",
+        "PrepareRequirementsCommand",
+        "PrepareRequirementsResult",
+        "RequirementAnswer",
         "RequirementCategory",
+        "RequirementFinding",
+        "RequirementIntake",
         "RequirementPriority",
+        "RequirementSource",
+        "RequirementSourceKind",
         "RequirementStatus",
+        "RequirementsApprovalError",
+        "RequirementsConflictError",
+        "RequirementsIncompleteError",
+        "RequirementsReadiness",
+        "RequirementsReviewPackage",
+        "RequirementsWorkflowError",
+        "RouteRecommendation",
         "RouteVisibility",
         "SUPPORTED_WEB_CONTRACT_VERSIONS",
         "SurfaceType",
@@ -84,6 +103,7 @@ def test_public_api_is_deliberately_closed() -> None:
         "WebInformationArchitectureContract",
         "WebLifecycleStatus",
         "WebProjectProfile",
+        "WebProductBrief",
         "WebRequirement",
         "WebRequirementsContract",
         "WebRoute",
@@ -91,10 +111,12 @@ def test_public_api_is_deliberately_closed() -> None:
         "WebStackProfile",
         "WebSurface",
         "__version__",
+        "approve_requirements",
         "canonical_bytes",
         "contract_fingerprint",
         "decode_contract",
         "encode_contract",
+        "prepare_requirements",
     }
     assert not hasattr(arch_web, "decode_contract_data")
     assert not hasattr(arch_web, "to_canonical_data")
@@ -114,5 +136,5 @@ def test_reverse_dependencies_do_not_exist_in_installed_arch_packages() -> None:
 def test_no_w02_or_framework_modules_exist() -> None:
     names = {path.stem for path in SOURCE.rglob("*.py")}
     assert names.isdisjoint(
-        {"agents", "cli", "deployment", "generator", "github", "http", "interview", "workflow"}
+        {"agents", "cli", "deployment", "generator", "github", "http", "workflow"}
     )

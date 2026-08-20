@@ -1,4 +1,4 @@
-"""Explicit fail-closed codecs for approved W01 records."""
+"""Explicit fail-closed codecs for approved ARCH Web records."""
 
 from __future__ import annotations
 
@@ -22,9 +22,18 @@ from arch_web.domain.enums import (
 )
 from arch_web.domain.errors import WebContractIntegrityError, WebContractValidationError
 from arch_web.domain.information_architecture import WebInformationArchitectureContract
+from arch_web.domain.product_brief import WebProductBrief
 from arch_web.domain.project import WebProjectProfile
 from arch_web.domain.references import ContractRef, DesignReference, EvidenceRef
 from arch_web.domain.requirements import WebRequirement, WebRequirementsContract
+from arch_web.domain.requirements_review import (
+    FindingCode,
+    FindingSeverity,
+    RequirementFinding,
+    RequirementsReadiness,
+    RequirementsReviewPackage,
+    RouteRecommendation,
+)
 from arch_web.domain.stack import WebStackProfile
 from arch_web.domain.surfaces import WebRouteContract, WebSurface
 
@@ -126,6 +135,41 @@ def decode_contract_data[ContractT: WebContractRecord](
             data["design_system_ref"] = _contract_ref(data.get("design_system_ref"))
             data["created_at"] = _datetime(data.get("created_at"))
             result = WebProjectProfile(**data)
+        elif contract_class is WebProductBrief:
+            data["project_kind_hypothesis"] = ProjectKind(data["project_kind_hypothesis"])
+            data["route"] = WebRoute(data["route"])
+            data["source_refs"] = tuple(
+                cast(EvidenceRef, _evidence_ref(item)) for item in data["source_refs"]
+            )
+            data["approval_evidence_ref"] = _evidence_ref(data.get("approval_evidence_ref"))
+            result = WebProductBrief(**data)
+        elif contract_class is RequirementFinding:
+            data["code"] = FindingCode(data["code"])
+            data["severity"] = FindingSeverity(data["severity"])
+            result = RequirementFinding(**data)
+        elif contract_class is RouteRecommendation:
+            data["recommended_route"] = WebRoute(data["recommended_route"])
+            result = RouteRecommendation(**data)
+        elif contract_class is RequirementsReviewPackage:
+            data["product_brief_ref"] = cast(ContractRef, _contract_ref(data["product_brief_ref"]))
+            data["requirements_contract_ref"] = cast(
+                ContractRef, _contract_ref(data["requirements_contract_ref"])
+            )
+            data["gap_findings"] = tuple(
+                RequirementFinding.from_data(item) for item in data["gap_findings"]
+            )
+            data["conflict_findings"] = tuple(
+                RequirementFinding.from_data(item) for item in data["conflict_findings"]
+            )
+            data["route_recommendation"] = RouteRecommendation.from_data(
+                data["route_recommendation"]
+            )
+            data["readiness"] = RequirementsReadiness(data["readiness"])
+            data["source_evidence_refs"] = tuple(
+                cast(EvidenceRef, _evidence_ref(item)) for item in data["source_evidence_refs"]
+            )
+            data["created_at"] = _datetime(data.get("created_at"))
+            result = RequirementsReviewPackage(**data)
         else:
             raise WebContractValidationError(f"No approved decoder for {contract_class!r}")
         return cast(ContractT, result)

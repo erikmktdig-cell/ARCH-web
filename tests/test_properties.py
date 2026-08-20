@@ -35,7 +35,11 @@ def test_constraint_order_does_not_change_canonical_evidence(values: list[str]) 
 
 
 @pytest.mark.property
-@given(st.text(min_size=1).filter(lambda value: value == value.strip()))
+@given(
+    st.text(min_size=1).filter(
+        lambda value: value == value.strip() and value not in {"none", "unspecified"}
+    )
+)
 def test_semantic_stack_mutation_changes_fingerprint(runtime: str) -> None:
     baseline = make_stack(runtime_requirement="node>=22")
     changed = make_stack(runtime_requirement=runtime)

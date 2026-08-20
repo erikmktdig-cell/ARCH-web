@@ -1,4 +1,4 @@
-"""Approved W01 domain surface."""
+"""Approved ARCH Web domain surface."""
 
 from arch_web.domain.enums import (
     ArchitectureChoice,
@@ -19,9 +19,18 @@ from arch_web.domain.errors import (
     WebContractValidationError,
 )
 from arch_web.domain.information_architecture import WebInformationArchitectureContract
+from arch_web.domain.product_brief import WebProductBrief
 from arch_web.domain.project import WebProjectProfile
 from arch_web.domain.references import ContractRef, DesignReference, EvidenceRef
 from arch_web.domain.requirements import WebRequirement, WebRequirementsContract
+from arch_web.domain.requirements_review import (
+    FindingCode,
+    FindingSeverity,
+    RequirementFinding,
+    RequirementsReadiness,
+    RequirementsReviewPackage,
+    RouteRecommendation,
+)
 from arch_web.domain.stack import WebStackProfile
 from arch_web.domain.surfaces import WebRouteContract, WebSurface
 
@@ -30,10 +39,16 @@ __all__ = (
     "ContractRef",
     "DesignReference",
     "EvidenceRef",
+    "FindingCode",
+    "FindingSeverity",
     "ProjectKind",
     "RequirementCategory",
+    "RequirementFinding",
     "RequirementPriority",
     "RequirementStatus",
+    "RequirementsReadiness",
+    "RequirementsReviewPackage",
+    "RouteRecommendation",
     "RouteVisibility",
     "SurfaceType",
     "UnsupportedWebContractVersionError",
@@ -43,6 +58,7 @@ __all__ = (
     "WebContractValidationError",
     "WebInformationArchitectureContract",
     "WebLifecycleStatus",
+    "WebProductBrief",
     "WebProjectProfile",
     "WebRequirement",
     "WebRequirementsContract",
