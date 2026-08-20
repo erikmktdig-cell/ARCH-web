@@ -38,7 +38,7 @@ from w03.factories import architecture_command
 def test_route_depths_can_produce_reviewable_architecture(route: WebRoute) -> None:
     result = prepare_architecture(architecture_command(route))
     assert result.review_package.readiness is ArchitectureReadiness.READY_FOR_REVIEW
-    assert result.information_architecture.routes[0].path_pattern == "/"
+    assert any(item.path_pattern == "/" for item in result.information_architecture.routes)
     assert len(result.review_package.coverage) == len(
         architecture_command(route).requirements_contract.requirements
     )
@@ -240,9 +240,24 @@ def test_analysis_detects_public_protected_mismatch_and_unreachable_route() -> N
         visibility=RouteVisibility.AUTHENTICATED,
         auth_requirement="required",
     )
-    ia = replace(result.information_architecture, routes=(route,))
-    public_node = replace(result.navigation_model.nodes[0], visibility=NavigationVisibility.PUBLIC)
-    navigation = replace(result.navigation_model, nodes=(public_node,))
+    ia = replace(
+        result.information_architecture,
+        routes=tuple(
+            route if item.route_id == route.route_id else item
+            for item in result.information_architecture.routes
+        ),
+    )
+    matched_node = next(
+        item for item in result.navigation_model.nodes if item.route_ref == route.route_id
+    )
+    public_node = replace(matched_node, visibility=NavigationVisibility.PUBLIC)
+    navigation = replace(
+        result.navigation_model,
+        nodes=tuple(
+            public_node if item.node_id == public_node.node_id else item
+            for item in result.navigation_model.nodes
+        ),
+    )
     _, findings = analyze_architecture(
         command.requirements_contract,
         ia,

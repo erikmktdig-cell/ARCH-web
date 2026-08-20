@@ -53,3 +53,22 @@ including deferred W04 and W06/W07 evidence.
 Architecture approval requires exact requirement, IA, navigation, and review fingerprints,
 explicit evidence, and a successful public `Runtime.apply_transition()` result. W03 produces
 no visual design or frontend code.
+
+## Design system and UI specification
+
+W04 converts exact approved requirements, information architecture, and explicit design intent
+into deterministic, framework-neutral design-system and UI contracts. Primitive values remain
+separate from semantic token roles, and UI components reference semantic roles with explicit
+applicable states. Responsive policy describes behavior across ranges, including preservation
+of required actions, rather than treating breakpoints as the specification.
+
+Reference profiles are immutable accessible baselines. A recommendation is advisory and a
+profile becomes governed input only through explicit adoption. Design-time checks cover color
+contrast intent, labels, focus, keyboard behavior, target sizing, error semantics, data states,
+and purposeful motion with reduced-motion behavior; they do not claim rendered WCAG conformance.
+Visual references remain evidence, never authority.
+
+`READY_FOR_REVIEW` is not approval. The `ARCHITECTURE_APPROVED` to `UI_APPROVED` transition binds
+the exact requirements, architecture, intent/profile, design system, UI specification, coverage,
+review, and approval-evidence fingerprints through public `Runtime.apply_transition()`. W04 does
+not generate frontend code, CSS, framework configuration, previews, or deployments.

@@ -26,5 +26,6 @@ def test_w03_contains_no_framework_or_execution_dependencies() -> None:
 
 @pytest.mark.architecture
 def test_w03_does_not_create_design_or_generation_modules() -> None:
-    paths = {path.relative_to(SOURCE).as_posix() for path in SOURCE.rglob("*.py")}
+    w03_source = SOURCE / "application" / "architecture"
+    paths = {path.relative_to(SOURCE).as_posix() for path in w03_source.rglob("*.py")}
     assert not any("design" in path or "generation" in path or "frontend" in path for path in paths)

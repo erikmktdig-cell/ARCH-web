@@ -77,16 +77,19 @@ def _surface_kind(requirement: WebRequirement) -> tuple[str, str, SurfaceType, b
 def plan_information_architecture(
     requirements: WebRequirementsContract,
 ) -> tuple[WebInformationArchitectureContract, NavigationModel]:
-    material = tuple(
-        item
-        for item in requirements.requirements
-        if item.category
-        in {
+    def is_surface_material(item: WebRequirement) -> bool:
+        if item.category in {
             RequirementCategory.FUNCTIONAL,
             RequirementCategory.CONTENT,
             RequirementCategory.NAVIGATION,
-        }
-    )
+        }:
+            return True
+        return item.category is RequirementCategory.DATA and any(
+            term in item.statement.lower()
+            for term in ("user", "account", "dashboard", "display", "view")
+        )
+
+    material = tuple(item for item in requirements.requirements if is_surface_material(item))
     groups: dict[tuple[str, str, SurfaceType, bool], list[WebRequirement]] = {}
     for requirement in material:
         groups.setdefault(_surface_kind(requirement), []).append(requirement)

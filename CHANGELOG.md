@@ -14,3 +14,9 @@
 - Framework-neutral route normalization using the canonical brace parameter grammar.
 - Architecture findings, route-aware readiness, canonical review evidence, and codec support.
 - Explicit architecture approval through the public ARCH Runtime API with exact fingerprints.
+- WP-W04 immutable design intent, reference profiles, primitive and semantic token layers,
+  typography, layout, responsive, motion, component, surface, coverage, finding, and review
+  contracts.
+- Deterministic design-time contrast, token resolution, component-state, form, modal-focus,
+  responsive-action, requirement-provenance, and route-aware readiness validation.
+- Explicit UI approval through the public ARCH Runtime API with exact governed fingerprints.

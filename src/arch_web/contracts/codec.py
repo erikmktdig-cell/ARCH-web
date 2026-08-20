@@ -18,6 +18,19 @@ from arch_web.domain.architecture_review import (
     CoverageDisposition,
     RequirementCoverage,
 )
+from arch_web.domain.design_intent import (
+    DesignIntent,
+    DesignProfileRecommendation,
+    ReferenceDesignProfile,
+)
+from arch_web.domain.design_tokens import (
+    ContrastPairSpec,
+    PrimitiveToken,
+    PrimitiveTokenKind,
+    PrimitiveTokenSet,
+    SemanticToken,
+    SemanticTokenSet,
+)
 from arch_web.domain.enums import (
     ArchitectureChoice,
     ProjectKind,
@@ -54,6 +67,38 @@ from arch_web.domain.requirements_review import (
 )
 from arch_web.domain.stack import WebStackProfile
 from arch_web.domain.surfaces import WebRouteContract, WebSurface
+from arch_web.domain.ui_review import (
+    DesignCoverageDisposition,
+    DesignCoverageItem,
+    DesignCoverageResult,
+    DesignCoverageScope,
+    DesignFinding,
+    DesignFindingCode,
+    DesignFindingSeverity,
+    UIReadiness,
+    UIReviewPackage,
+)
+from arch_web.domain.ui_specification import (
+    AccessibilitySpec,
+    BreakpointSpec,
+    ComponentStateName,
+    ComponentStateSpec,
+    ComponentVariantSpec,
+    InteractionSpec,
+    LayoutSystem,
+    MotionPolicy,
+    MotionPurpose,
+    MotionSpec,
+    ResponsiveBehavior,
+    ResponsivePolicy,
+    ResponsiveRule,
+    SurfaceUISpec,
+    TypographyRole,
+    TypographySystem,
+    UIComponentSpec,
+    WebDesignSystemContract,
+    WebUISpecificationContract,
+)
 
 
 def encode_contract(value: WebContractRecord) -> bytes:
@@ -180,6 +225,131 @@ def decode_contract_data[ContractT: WebContractRecord](
             data["readiness"] = ArchitectureReadiness(data["readiness"])
             data["approval_evidence_ref"] = _evidence_ref(data.get("approval_evidence_ref"))
             result = ArchitectureReviewPackage(**data)
+        elif contract_class is DesignIntent:
+            data["reference_refs"] = tuple(
+                DesignReference.from_data(item) for item in data["reference_refs"]
+            )
+            result = DesignIntent(**data)
+        elif contract_class is ReferenceDesignProfile:
+            data["supported_routes"] = tuple(WebRoute(item) for item in data["supported_routes"])
+            data["primitive_tokens"] = tuple(tuple(item) for item in data["primitive_tokens"])
+            data["semantic_tokens"] = tuple(tuple(item) for item in data["semantic_tokens"])
+            result = ReferenceDesignProfile(**data)
+        elif contract_class is DesignProfileRecommendation:
+            data["route"] = WebRoute(data["route"])
+            result = DesignProfileRecommendation(**data)
+        elif contract_class is PrimitiveToken:
+            data["kind"] = PrimitiveTokenKind(data["kind"])
+            result = PrimitiveToken(**data)
+        elif contract_class is PrimitiveTokenSet:
+            data["tokens"] = tuple(PrimitiveToken.from_data(item) for item in data["tokens"])
+            result = PrimitiveTokenSet(**data)
+        elif contract_class is SemanticToken:
+            result = SemanticToken(**data)
+        elif contract_class is SemanticTokenSet:
+            data["primitive_set_ref"] = cast(ContractRef, _contract_ref(data["primitive_set_ref"]))
+            data["tokens"] = tuple(SemanticToken.from_data(item) for item in data["tokens"])
+            result = SemanticTokenSet(**data)
+        elif contract_class is ContrastPairSpec:
+            result = ContrastPairSpec(**data)
+        elif contract_class is TypographyRole:
+            result = TypographyRole(**data)
+        elif contract_class is TypographySystem:
+            data["roles"] = tuple(TypographyRole.from_data(item) for item in data["roles"])
+            result = TypographySystem(**data)
+        elif contract_class is LayoutSystem:
+            result = LayoutSystem(**data)
+        elif contract_class is BreakpointSpec:
+            result = BreakpointSpec(**data)
+        elif contract_class is ResponsiveRule:
+            data["behavior"] = ResponsiveBehavior(data["behavior"])
+            result = ResponsiveRule(**data)
+        elif contract_class is ResponsivePolicy:
+            data["breakpoints"] = tuple(
+                BreakpointSpec.from_data(item) for item in data["breakpoints"]
+            )
+            data["rules"] = tuple(ResponsiveRule.from_data(item) for item in data["rules"])
+            result = ResponsivePolicy(**data)
+        elif contract_class is MotionSpec:
+            data["purpose"] = MotionPurpose(data["purpose"])
+            result = MotionSpec(**data)
+        elif contract_class is MotionPolicy:
+            data["motions"] = tuple(MotionSpec.from_data(item) for item in data["motions"])
+            result = MotionPolicy(**data)
+        elif contract_class is ComponentStateSpec:
+            data["state"] = ComponentStateName(data["state"])
+            result = ComponentStateSpec(**data)
+        elif contract_class is ComponentVariantSpec:
+            result = ComponentVariantSpec(**data)
+        elif contract_class is InteractionSpec:
+            result = InteractionSpec(**data)
+        elif contract_class is AccessibilitySpec:
+            result = AccessibilitySpec(**data)
+        elif contract_class is UIComponentSpec:
+            data["variants"] = tuple(
+                ComponentVariantSpec.from_data(item) for item in data["variants"]
+            )
+            data["states"] = tuple(ComponentStateSpec.from_data(item) for item in data["states"])
+            data["interaction"] = InteractionSpec.from_data(data["interaction"])
+            data["accessibility"] = AccessibilitySpec.from_data(data["accessibility"])
+            result = UIComponentSpec(**data)
+        elif contract_class is SurfaceUISpec:
+            result = SurfaceUISpec(**data)
+        elif contract_class is WebDesignSystemContract:
+            data["design_intent_ref"] = cast(ContractRef, _contract_ref(data["design_intent_ref"]))
+            data["selected_profile_ref"] = _contract_ref(data.get("selected_profile_ref"))
+            data["primitive_tokens"] = PrimitiveTokenSet.from_data(data["primitive_tokens"])
+            data["semantic_tokens"] = SemanticTokenSet.from_data(data["semantic_tokens"])
+            data["contrast_pairs"] = tuple(
+                ContrastPairSpec.from_data(item) for item in data["contrast_pairs"]
+            )
+            data["typography"] = TypographySystem.from_data(data["typography"])
+            data["layout"] = LayoutSystem.from_data(data["layout"])
+            data["responsive"] = ResponsivePolicy.from_data(data["responsive"])
+            data["motion"] = MotionPolicy.from_data(data["motion"])
+            result = WebDesignSystemContract(**data)
+        elif contract_class is WebUISpecificationContract:
+            data["architecture_ref"] = cast(ContractRef, _contract_ref(data["architecture_ref"]))
+            data["design_system_ref"] = cast(ContractRef, _contract_ref(data["design_system_ref"]))
+            data["components"] = tuple(
+                UIComponentSpec.from_data(item) for item in data["components"]
+            )
+            data["surfaces"] = tuple(SurfaceUISpec.from_data(item) for item in data["surfaces"])
+            data["design_evidence_refs"] = tuple(
+                DesignReference.from_data(item) for item in data["design_evidence_refs"]
+            )
+            result = WebUISpecificationContract(**data)
+        elif contract_class is DesignCoverageItem:
+            data["scope"] = DesignCoverageScope(data["scope"])
+            data["disposition"] = DesignCoverageDisposition(data["disposition"])
+            result = DesignCoverageItem(**data)
+        elif contract_class is DesignCoverageResult:
+            data["items"] = tuple(DesignCoverageItem.from_data(item) for item in data["items"])
+            result = DesignCoverageResult(**data)
+        elif contract_class is DesignFinding:
+            data["code"] = DesignFindingCode(data["code"])
+            data["severity"] = DesignFindingSeverity(data["severity"])
+            result = DesignFinding(**data)
+        elif contract_class is UIReviewPackage:
+            for field_name in (
+                "requirements_ref",
+                "architecture_ref",
+                "architecture_review_ref",
+                "design_intent_ref",
+                "design_system_ref",
+                "ui_specification_ref",
+                "coverage_ref",
+            ):
+                data[field_name] = cast(ContractRef, _contract_ref(data[field_name]))
+            data["selected_profile_ref"] = _contract_ref(data.get("selected_profile_ref"))
+            data["route"] = WebRoute(data["route"])
+            data["profile_recommendation"] = DesignProfileRecommendation.from_data(
+                data["profile_recommendation"]
+            )
+            data["findings"] = tuple(DesignFinding.from_data(item) for item in data["findings"])
+            data["readiness"] = UIReadiness(data["readiness"])
+            data["approval_evidence_ref"] = _evidence_ref(data.get("approval_evidence_ref"))
+            result = UIReviewPackage(**data)
         elif contract_class is WebProjectProfile:
             data["route"] = WebRoute(data["route"])
             data["project_kind"] = ProjectKind(data["project_kind"])
