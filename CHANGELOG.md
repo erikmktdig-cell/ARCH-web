@@ -35,3 +35,20 @@
   exact post-bootstrap baseline binding, path claims, drift/security checks, and reconciliation.
 - Explicit static reference adapter for semantic-token compilation and the governed frontend
   vertical slice; unsupported stacks fail closed without a hidden default.
+- WP-W07 immutable backend assignment, interface, application-data, ownership/lifecycle,
+  authentication, authorization, persistence, migration, integration, failure, check, finding,
+  completion, and review contracts with canonical round-trip codecs.
+- Deterministic frontend/backend binding closure and proposal validation before conversion to the
+  existing W05 dry-run and safe-apply engine; W07 leaves Runtime state at `IMPLEMENTING`.
+- Explicit offline Python/SQLite reference adapter, disposable application-database migration
+  harness, owner-scoped server authorization, parameterized repository operations, transactional
+  rollback evidence, and local idempotent integration double.
+- Architecture guards that confine `sqlite3` to the bounded backend adapter and prohibit Runtime
+  persistence reuse, public-network test dependencies, W08 QA, and W09 delivery scope.
+
+### Fixed
+
+- Application migration evidence now executes each approved SQL step inside the controlled SQLite
+  transaction instead of relying on `executescript`, preserving rollback on a failing step.
+- Earlier W05/W06 architecture tests now distinguish the authorized W07 backend adapter from still
+  forbidden browser, deployment, framework, and remote-delivery dependencies.

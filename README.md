@@ -114,3 +114,23 @@ responsive rules, accessibility intent, pending W07 data boundaries, engineering
 tree evidence, and reconciliation status. Engineering checks do not claim rendered accessibility,
 visual, browser, preview, release, or deployment quality. W06 leaves lifecycle state at
 `IMPLEMENTING`; W08 owns rendered QA and later testing semantics.
+
+## Backend and data integration
+
+W07 consumes the exact W06 completion package and closes every pending backend binding as
+implemented, not applicable, deferred with authority, or blocked. Approved interface, data,
+ownership, retention, authentication, server authorization, persistence, migration, integration,
+and public failure contracts are immutable inputs; executor output remains an untrusted proposal
+until W07 validation succeeds. Validated bytes flow through the existing W05 dry-run and safe-apply
+engine, so W07 does not introduce another filesystem or Git mutation path.
+
+ARCH Runtime persistence and generated-application persistence are separate systems. Application
+code cannot reuse the Runtime database path, connection, repositories, Unit of Work, tables, SQL
+migrations, or K10 contract migrations. The bundled Python/SQLite implementation is an explicitly
+selected offline reference adapter for governance evidence, not a production default or hidden
+stack fallback.
+
+Backend completion binds the exact pre/post tree, W06 evidence, binding matrix, contracts,
+migrations, engineering checks, findings, and reconciliation state. A truly static project with no
+backend units and no pending bindings receives deterministic `NOT_APPLICABLE` evidence. W07 keeps
+the lifecycle at `IMPLEMENTING`; it does not claim W08 testing/QA or W09 release readiness.

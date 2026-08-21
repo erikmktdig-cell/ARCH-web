@@ -13,6 +13,27 @@ from arch_web.application.architecture import (
     plan_information_architecture,
     prepare_architecture,
 )
+from arch_web.application.backend import (
+    ApplyBackendUnitCommand,
+    ApplyBackendUnitResult,
+    BackendEngineeringError,
+    BackendPreparationError,
+    BackendProposalError,
+    PrepareBackendCommand,
+    PrepareBackendResult,
+    UnsupportedBackendStackError,
+    VerifyBackendCommand,
+    VerifyBackendResult,
+    apply_backend_unit,
+    prepare_backend,
+    verify_backend,
+)
+from arch_web.application.backend import (
+    proposal_findings as backend_proposal_findings,
+)
+from arch_web.application.backend import (
+    proposal_to_change_set as backend_proposal_to_change_set,
+)
 from arch_web.application.design import (
     ApproveUISpecificationCommand,
     ApproveUISpecificationResult,
@@ -81,6 +102,8 @@ from arch_web.application.workspace import (
 )
 
 __all__ = (
+    "ApplyBackendUnitCommand",
+    "ApplyBackendUnitResult",
     "ApplyFrontendUnitCommand",
     "ApplyFrontendUnitResult",
     "ApplyWorkspaceCommand",
@@ -98,6 +121,9 @@ __all__ = (
     "ArchitectureWorkflowError",
     "AuthorizeFrontendCommand",
     "AuthorizeFrontendResult",
+    "BackendEngineeringError",
+    "BackendPreparationError",
+    "BackendProposalError",
     "FrontendAuthorizationError",
     "FrontendEngineeringError",
     "FrontendPreparationError",
@@ -105,6 +131,8 @@ __all__ = (
     "ImplementationReadinessApprovalError",
     "PrepareArchitectureCommand",
     "PrepareArchitectureResult",
+    "PrepareBackendCommand",
+    "PrepareBackendResult",
     "PrepareFrontendCommand",
     "PrepareFrontendResult",
     "PrepareRequirementsCommand",
@@ -124,7 +152,10 @@ __all__ = (
     "UIDesignApprovalError",
     "UIDesignPreparationError",
     "UIDesignWorkflowError",
+    "UnsupportedBackendStackError",
     "UnsupportedFrontendStackError",
+    "VerifyBackendCommand",
+    "VerifyBackendResult",
     "VerifyFrontendCommand",
     "VerifyFrontendResult",
     "WorkspaceExecutionError",
@@ -133,13 +164,17 @@ __all__ = (
     "WorkspacePreparationError",
     "analyze_architecture",
     "analyze_ui_design",
+    "apply_backend_unit",
     "apply_frontend_unit",
+    "backend_proposal_findings",
+    "backend_proposal_to_change_set",
     "build_design_coverage",
     "dry_run_workspace",
     "get_reference_profile",
     "normalize_route_path",
     "plan_information_architecture",
     "prepare_architecture",
+    "prepare_backend",
     "prepare_frontend",
     "prepare_requirements",
     "prepare_ui_specification",
@@ -149,5 +184,6 @@ __all__ = (
     "recommend_reference_profile",
     "reference_design_profiles",
     "resolve_stack",
+    "verify_backend",
     "verify_frontend",
 )

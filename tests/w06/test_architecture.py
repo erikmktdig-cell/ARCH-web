@@ -78,9 +78,8 @@ def test_runtime_bridge_uses_only_public_runtime_and_no_storage() -> None:
 
 
 @pytest.mark.architecture
-def test_no_w07_w08_delivery_or_remote_modules_exist() -> None:
+def test_no_w08_delivery_or_remote_modules_exist() -> None:
     forbidden = {
-        "backend",
         "browser_qa",
         "deployment",
         "github",

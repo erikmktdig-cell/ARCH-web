@@ -1,6 +1,11 @@
 """Stable public API for approved ARCH Web contracts and workflows."""
 
 from arch_web.__about__ import __version__
+from arch_web.adapters.backend import (
+    ApplicationSQLiteHarness,
+    LocalIntegrationDouble,
+    PythonSQLiteBackendAdapter,
+)
 from arch_web.adapters.frontend import StaticFrontendAdapter
 from arch_web.application import (
     ApplyWorkspaceCommand,
@@ -54,6 +59,27 @@ from arch_web.application import (
     recommend_reference_profile,
     reference_design_profiles,
     resolve_stack,
+)
+from arch_web.application.backend import (
+    ApplyBackendUnitCommand,
+    ApplyBackendUnitResult,
+    BackendEngineeringError,
+    BackendPreparationError,
+    BackendProposalError,
+    PrepareBackendCommand,
+    PrepareBackendResult,
+    UnsupportedBackendStackError,
+    VerifyBackendCommand,
+    VerifyBackendResult,
+    apply_backend_unit,
+    prepare_backend,
+    verify_backend,
+)
+from arch_web.application.backend import (
+    proposal_findings as backend_proposal_findings,
+)
+from arch_web.application.backend import (
+    proposal_to_change_set as backend_proposal_to_change_set,
 )
 from arch_web.application.frontend import (
     ApplyFrontendUnitCommand,
@@ -191,6 +217,38 @@ from arch_web.domain import (
     WorkspaceReadiness,
     WorkspaceReviewPackage,
     WorkspaceTarget,
+)
+from arch_web.domain.backend import (
+    ApplicationDataContract,
+    ApplicationMigrationPlan,
+    ApplicationMigrationStep,
+    AuthenticationContract,
+    AuthorizationRule,
+    BackendArtifact,
+    BackendArtifactKind,
+    BackendAssignmentPacket,
+    BackendCompletionPackage,
+    BackendDataBinding,
+    BackendDisposition,
+    BackendEngineeringCheck,
+    BackendFinding,
+    BackendFindingCode,
+    BackendImplementationProposal,
+    BackendInterfaceContract,
+    BackendOperationContract,
+    BackendReviewPackage,
+    BackendUnitResult,
+    BindingClosureStatus,
+    DataEntitySpec,
+    DataFieldSpec,
+    DataLifecyclePolicy,
+    DataOwnershipPolicy,
+    DataSensitivity,
+    DataSourceKind,
+    ExternalIntegrationContract,
+    FailureKind,
+    FailurePolicy,
+    PersistenceContract,
 )
 from arch_web.domain.frontend import (
     FrontendArtifact,
@@ -435,4 +493,55 @@ __all__ += (
     "proposal_findings",
     "proposal_to_change_set",
     "verify_frontend",
+)
+
+__all__ += (
+    "ApplicationDataContract",
+    "ApplicationMigrationPlan",
+    "ApplicationMigrationStep",
+    "ApplicationSQLiteHarness",
+    "ApplyBackendUnitCommand",
+    "ApplyBackendUnitResult",
+    "AuthenticationContract",
+    "AuthorizationRule",
+    "BackendArtifact",
+    "BackendArtifactKind",
+    "BackendAssignmentPacket",
+    "BackendCompletionPackage",
+    "BackendDataBinding",
+    "BackendDisposition",
+    "BackendEngineeringCheck",
+    "BackendEngineeringError",
+    "BackendFinding",
+    "BackendFindingCode",
+    "BackendImplementationProposal",
+    "BackendInterfaceContract",
+    "BackendOperationContract",
+    "BackendPreparationError",
+    "BackendProposalError",
+    "BackendReviewPackage",
+    "BackendUnitResult",
+    "BindingClosureStatus",
+    "DataEntitySpec",
+    "DataFieldSpec",
+    "DataLifecyclePolicy",
+    "DataOwnershipPolicy",
+    "DataSensitivity",
+    "DataSourceKind",
+    "ExternalIntegrationContract",
+    "FailureKind",
+    "FailurePolicy",
+    "LocalIntegrationDouble",
+    "PersistenceContract",
+    "PrepareBackendCommand",
+    "PrepareBackendResult",
+    "PythonSQLiteBackendAdapter",
+    "UnsupportedBackendStackError",
+    "VerifyBackendCommand",
+    "VerifyBackendResult",
+    "apply_backend_unit",
+    "backend_proposal_findings",
+    "backend_proposal_to_change_set",
+    "prepare_backend",
+    "verify_backend",
 )

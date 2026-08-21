@@ -18,6 +18,38 @@ from arch_web.domain.architecture_review import (
     CoverageDisposition,
     RequirementCoverage,
 )
+from arch_web.domain.backend import (
+    ApplicationDataContract,
+    ApplicationMigrationPlan,
+    ApplicationMigrationStep,
+    AuthenticationContract,
+    AuthorizationRule,
+    BackendArtifact,
+    BackendArtifactKind,
+    BackendAssignmentPacket,
+    BackendCompletionPackage,
+    BackendDataBinding,
+    BackendDisposition,
+    BackendEngineeringCheck,
+    BackendFinding,
+    BackendFindingCode,
+    BackendImplementationProposal,
+    BackendInterfaceContract,
+    BackendOperationContract,
+    BackendReviewPackage,
+    BackendUnitResult,
+    BindingClosureStatus,
+    DataEntitySpec,
+    DataFieldSpec,
+    DataLifecyclePolicy,
+    DataOwnershipPolicy,
+    DataSensitivity,
+    DataSourceKind,
+    ExternalIntegrationContract,
+    FailureKind,
+    FailurePolicy,
+    PersistenceContract,
+)
 from arch_web.domain.design_intent import (
     DesignIntent,
     DesignProfileRecommendation,
@@ -473,6 +505,114 @@ def decode_contract_data[ContractT: WebContractRecord](
             data["readiness"] = WorkspaceReadiness(data["readiness"])
             data["approval_evidence_ref"] = _evidence_ref(data.get("approval_evidence_ref"))
             result = WorkspaceReviewPackage(**data)
+        elif contract_class is DataFieldSpec:
+            data["sensitivity"] = DataSensitivity(data["sensitivity"])
+            result = DataFieldSpec(**data)
+        elif contract_class is DataOwnershipPolicy:
+            data["source_kind"] = DataSourceKind(data["source_kind"])
+            result = DataOwnershipPolicy(**data)
+        elif contract_class is DataLifecyclePolicy:
+            result = DataLifecyclePolicy(**data)
+        elif contract_class is DataEntitySpec:
+            data["fields"] = tuple(DataFieldSpec.from_data(item) for item in data["fields"])
+            data["ownership"] = DataOwnershipPolicy.from_data(data["ownership"])
+            data["lifecycle"] = DataLifecyclePolicy.from_data(data["lifecycle"])
+            result = DataEntitySpec(**data)
+        elif contract_class is ApplicationDataContract:
+            data["entities"] = tuple(DataEntitySpec.from_data(item) for item in data["entities"])
+            result = ApplicationDataContract(**data)
+        elif contract_class is FailurePolicy:
+            data["failure"] = FailureKind(data["failure"])
+            result = FailurePolicy(**data)
+        elif contract_class is BackendOperationContract:
+            data["failure_kinds"] = tuple(FailureKind(item) for item in data["failure_kinds"])
+            data["sensitivity"] = DataSensitivity(data["sensitivity"])
+            result = BackendOperationContract(**data)
+        elif contract_class is BackendInterfaceContract:
+            data["operations"] = tuple(
+                BackendOperationContract.from_data(item) for item in data["operations"]
+            )
+            data["failure_policies"] = tuple(
+                FailurePolicy.from_data(item) for item in data["failure_policies"]
+            )
+            result = BackendInterfaceContract(**data)
+        elif contract_class is BackendDataBinding:
+            data["status"] = BindingClosureStatus(data["status"])
+            result = BackendDataBinding(**data)
+        elif contract_class is AuthenticationContract:
+            result = AuthenticationContract(**data)
+        elif contract_class is AuthorizationRule:
+            result = AuthorizationRule(**data)
+        elif contract_class is PersistenceContract:
+            result = PersistenceContract(**data)
+        elif contract_class is ApplicationMigrationStep:
+            result = ApplicationMigrationStep(**data)
+        elif contract_class is ApplicationMigrationPlan:
+            data["steps"] = tuple(
+                ApplicationMigrationStep.from_data(item) for item in data["steps"]
+            )
+            result = ApplicationMigrationPlan(**data)
+        elif contract_class is ExternalIntegrationContract:
+            result = ExternalIntegrationContract(**data)
+        elif contract_class is BackendArtifact:
+            data["kind"] = BackendArtifactKind(data["kind"])
+            result = BackendArtifact(**data)
+        elif contract_class is BackendAssignmentPacket:
+            data["runtime_state"] = WebLifecycleStatus(data["runtime_state"])
+            result = BackendAssignmentPacket(**data)
+        elif contract_class is BackendFinding:
+            data["code"] = BackendFindingCode(data["code"])
+            result = BackendFinding(**data)
+        elif contract_class is BackendEngineeringCheck:
+            data["status"] = FrontendCheckStatus(data["status"])
+            result = BackendEngineeringCheck(**data)
+        elif contract_class is BackendImplementationProposal:
+            data["artifacts"] = tuple(BackendArtifact.from_data(item) for item in data["artifacts"])
+            data["bindings"] = tuple(
+                BackendDataBinding.from_data(item) for item in data["bindings"]
+            )
+            data["interface"] = BackendInterfaceContract.from_data(data["interface"])
+            data["data_contract"] = ApplicationDataContract.from_data(data["data_contract"])
+            data["authentication"] = AuthenticationContract.from_data(data["authentication"])
+            data["authorization_rules"] = tuple(
+                AuthorizationRule.from_data(item) for item in data["authorization_rules"]
+            )
+            data["persistence"] = PersistenceContract.from_data(data["persistence"])
+            data["migrations"] = ApplicationMigrationPlan.from_data(data["migrations"])
+            data["integrations"] = tuple(
+                ExternalIntegrationContract.from_data(item) for item in data["integrations"]
+            )
+            data["findings"] = tuple(BackendFinding.from_data(item) for item in data["findings"])
+            result = BackendImplementationProposal(**data)
+        elif contract_class is BackendUnitResult:
+            result = BackendUnitResult(**data)
+        elif contract_class is BackendCompletionPackage:
+            data["runtime_state"] = WebLifecycleStatus(data["runtime_state"])
+            data["disposition"] = BackendDisposition(data["disposition"])
+            data["frontend_completion_ref"] = cast(
+                ContractRef, _contract_ref(data["frontend_completion_ref"])
+            )
+            data["binding_closures"] = tuple(
+                BackendDataBinding.from_data(item) for item in data["binding_closures"]
+            )
+            data["unit_results"] = tuple(
+                BackendUnitResult.from_data(item) for item in data["unit_results"]
+            )
+            receipt = data.get("workspace_receipt")
+            data["workspace_receipt"] = (
+                None if receipt is None else WorkspaceExecutionReceipt.from_data(receipt)
+            )
+            data["engineering_checks"] = tuple(
+                BackendEngineeringCheck.from_data(item) for item in data["engineering_checks"]
+            )
+            data["findings"] = tuple(BackendFinding.from_data(item) for item in data["findings"])
+            data["reconciliation_status"] = ReconciliationStatus(data["reconciliation_status"])
+            result = BackendCompletionPackage(**data)
+        elif contract_class is BackendReviewPackage:
+            data["completion_ref"] = cast(ContractRef, _contract_ref(data["completion_ref"]))
+            data["findings"] = tuple(BackendFinding.from_data(item) for item in data["findings"])
+            data["disposition"] = BackendDisposition(data["disposition"])
+            result = BackendReviewPackage(**data)
         elif contract_class is FrontendExecutionAuthorization:
             result = FrontendExecutionAuthorization(**data)
         elif contract_class is FrontendAssignmentPacket:

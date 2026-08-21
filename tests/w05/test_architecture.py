@@ -45,7 +45,12 @@ def test_w05_domain_and_planning_do_not_mutate_or_probe() -> None:
 
 @pytest.mark.architecture
 def test_no_remote_deployment_browser_or_product_framework_dependencies() -> None:
-    imports = {item for path in SOURCE.rglob("*.py") for item in _imports(path)}
+    paths = [
+        path
+        for path in SOURCE.rglob("*.py")
+        if "adapters/backend" not in path.relative_to(SOURCE).as_posix()
+    ]
+    imports = {item for path in paths for item in _imports(path)}
     forbidden = {
         "github",
         "gitlab",
@@ -55,7 +60,12 @@ def test_no_remote_deployment_browser_or_product_framework_dependencies() -> Non
         "react",
         "next",
         "vite",
-        "sqlite3",
     }
     assert {item.split(".", 1)[0] for item in imports}.isdisjoint(forbidden)
+    sqlite_users = {
+        path.relative_to(SOURCE).as_posix()
+        for path in SOURCE.rglob("*.py")
+        if "sqlite3" in _imports(path)
+    }
+    assert sqlite_users == {"adapters/backend/sqlite.py"}
     assert not any(item.startswith("arch_runtime.") for item in imports)
