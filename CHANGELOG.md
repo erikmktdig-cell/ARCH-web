@@ -20,3 +20,10 @@
 - Deterministic design-time contrast, token resolution, component-state, form, modal-focus,
   responsive-action, requirement-provenance, and route-aware readiness validation.
 - Explicit UI approval through the public ARCH Runtime API with exact governed fingerprints.
+- WP-W05 immutable workspace target/baseline, resolved stack, implementation plan, path claim,
+  changeset, execution policy/receipt, repository evidence, finding, and review contracts.
+- Confined local filesystem execution with mutation-free dry-run, exact preconditions, exclusive
+  locking, external idempotency, rollback, and reconciliation evidence.
+- Narrow local Git and allowlisted toolchain adapters with explicit staging, offline defaults,
+  bounded/redacted diagnostics, and secret-artifact rejection.
+- Explicit implementation-readiness approval through public ARCH Runtime using exact W05 evidence.

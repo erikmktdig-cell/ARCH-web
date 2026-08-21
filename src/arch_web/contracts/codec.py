@@ -99,6 +99,33 @@ from arch_web.domain.ui_specification import (
     WebDesignSystemContract,
     WebUISpecificationContract,
 )
+from arch_web.domain.workspace import (
+    ExecutionOutcome,
+    FileEvidence,
+    ImplementationPlan,
+    ImplementationUnit,
+    ImplementationUnitKind,
+    PathClaim,
+    PathClaimMode,
+    ReconciliationStatus,
+    RepositoryBaseline,
+    RepositoryEvidence,
+    ResolvedStackManifest,
+    ToolchainCapability,
+    WorkspaceBaseline,
+    WorkspaceChange,
+    WorkspaceChangeSet,
+    WorkspaceDryRun,
+    WorkspaceExecutionPolicy,
+    WorkspaceExecutionReceipt,
+    WorkspaceFinding,
+    WorkspaceFindingCode,
+    WorkspaceKind,
+    WorkspaceOperation,
+    WorkspaceReadiness,
+    WorkspaceReviewPackage,
+    WorkspaceTarget,
+)
 
 
 def encode_contract(value: WebContractRecord) -> bytes:
@@ -350,6 +377,80 @@ def decode_contract_data[ContractT: WebContractRecord](
             data["readiness"] = UIReadiness(data["readiness"])
             data["approval_evidence_ref"] = _evidence_ref(data.get("approval_evidence_ref"))
             result = UIReviewPackage(**data)
+        elif contract_class is WorkspaceTarget:
+            data["kind"] = WorkspaceKind(data["kind"])
+            data["route"] = WebRoute(data["route"])
+            result = WorkspaceTarget(**data)
+        elif contract_class is FileEvidence:
+            result = FileEvidence(**data)
+        elif contract_class is RepositoryBaseline:
+            result = RepositoryBaseline(**data)
+        elif contract_class is WorkspaceBaseline:
+            data["files"] = tuple(FileEvidence.from_data(item) for item in data["files"])
+            data["repository"] = RepositoryBaseline.from_data(data["repository"])
+            data["toolchain_capabilities"] = tuple(
+                ToolchainCapability.from_data(item)
+                for item in data.get("toolchain_capabilities", ())
+            )
+            result = WorkspaceBaseline(**data)
+        elif contract_class is ToolchainCapability:
+            result = ToolchainCapability(**data)
+        elif contract_class is ResolvedStackManifest:
+            data["source_profile_ref"] = cast(
+                ContractRef, _contract_ref(data["source_profile_ref"])
+            )
+            result = ResolvedStackManifest(**data)
+        elif contract_class is PathClaim:
+            data["mode"] = PathClaimMode(data["mode"])
+            result = PathClaim(**data)
+        elif contract_class is ImplementationUnit:
+            data["kind"] = ImplementationUnitKind(data["kind"])
+            result = ImplementationUnit(**data)
+        elif contract_class is ImplementationPlan:
+            for field_name in (
+                "requirements_ref",
+                "architecture_ref",
+                "design_system_ref",
+                "ui_specification_ref",
+                "ui_review_ref",
+                "stack_ref",
+            ):
+                data[field_name] = cast(ContractRef, _contract_ref(data[field_name]))
+            data["units"] = tuple(ImplementationUnit.from_data(item) for item in data["units"])
+            data["path_claims"] = tuple(PathClaim.from_data(item) for item in data["path_claims"])
+            result = ImplementationPlan(**data)
+        elif contract_class is WorkspaceChange:
+            data["operation"] = WorkspaceOperation(data["operation"])
+            result = WorkspaceChange(**data)
+        elif contract_class is WorkspaceChangeSet:
+            data["changes"] = tuple(WorkspaceChange.from_data(item) for item in data["changes"])
+            result = WorkspaceChangeSet(**data)
+        elif contract_class is WorkspaceExecutionPolicy:
+            result = WorkspaceExecutionPolicy(**data)
+        elif contract_class is WorkspaceDryRun:
+            result = WorkspaceDryRun(**data)
+        elif contract_class is RepositoryEvidence:
+            result = RepositoryEvidence(**data)
+        elif contract_class is WorkspaceExecutionReceipt:
+            data["repository_evidence"] = RepositoryEvidence.from_data(data["repository_evidence"])
+            data["changed_paths"] = tuple(
+                FileEvidence.from_data(item) for item in data["changed_paths"]
+            )
+            data["outcome"] = ExecutionOutcome(data["outcome"])
+            data["reconciliation_status"] = ReconciliationStatus(data["reconciliation_status"])
+            result = WorkspaceExecutionReceipt(**data)
+        elif contract_class is WorkspaceFinding:
+            data["code"] = WorkspaceFindingCode(data["code"])
+            result = WorkspaceFinding(**data)
+        elif contract_class is WorkspaceReviewPackage:
+            for field_name in ("plan_ref", "stack_ref", "change_set_ref"):
+                data[field_name] = cast(ContractRef, _contract_ref(data[field_name]))
+            data["receipt_ref"] = _contract_ref(data.get("receipt_ref"))
+            data["route"] = WebRoute(data["route"])
+            data["findings"] = tuple(WorkspaceFinding.from_data(item) for item in data["findings"])
+            data["readiness"] = WorkspaceReadiness(data["readiness"])
+            data["approval_evidence_ref"] = _evidence_ref(data.get("approval_evidence_ref"))
+            result = WorkspaceReviewPackage(**data)
         elif contract_class is WebProjectProfile:
             data["route"] = WebRoute(data["route"])
             data["project_kind"] = ProjectKind(data["project_kind"])

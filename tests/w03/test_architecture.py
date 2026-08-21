@@ -14,7 +14,7 @@ SOURCE = Path(__file__).parents[2] / "src" / "arch_web"
 def test_w03_contains_no_framework_or_execution_dependencies() -> None:
     forbidden = {"react", "next", "vite", "node", "subprocess", "sqlite3", "requests", "httpx"}
     imports: set[str] = set()
-    for path in SOURCE.rglob("*.py"):
+    for path in (SOURCE / "application" / "architecture").rglob("*.py"):
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):

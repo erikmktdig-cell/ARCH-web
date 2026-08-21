@@ -10,6 +10,14 @@ import pytest
 SOURCE = Path(__file__).parents[2] / "src" / "arch_web"
 
 
+def _w04_paths() -> tuple[Path, ...]:
+    paths = list((SOURCE / "application" / "design").rglob("*.py"))
+    paths.extend((SOURCE / "domain").glob("design_*.py"))
+    paths.extend((SOURCE / "domain").glob("ui_*.py"))
+    paths.append(SOURCE / "runtime_bridge" / "ui.py")
+    return tuple(paths)
+
+
 def _imports(path: Path) -> set[str]:
     tree = ast.parse(path.read_text(encoding="utf-8"))
     values: set[str] = set()
@@ -38,13 +46,13 @@ def test_w04_has_no_framework_tooling_or_infrastructure_dependencies() -> None:
         "figma",
         "git",
     }
-    roots = {name.split(".")[0] for path in SOURCE.rglob("*.py") for name in _imports(path)}
+    roots = {name.split(".")[0] for path in _w04_paths() for name in _imports(path)}
     assert not roots & forbidden
 
 
 @pytest.mark.architecture
 def test_w04_contains_no_css_frontend_or_w05_generation_modules() -> None:
-    paths = {path.relative_to(SOURCE).as_posix().lower() for path in SOURCE.rglob("*")}
+    paths = {path.relative_to(SOURCE).as_posix().lower() for path in _w04_paths()}
     forbidden_fragments = ("css", "tailwind", "frontend", "generation", "workspace")
     assert not any(fragment in path for fragment in forbidden_fragments for path in paths)
 

@@ -72,3 +72,26 @@ Visual references remain evidence, never authority.
 the exact requirements, architecture, intent/profile, design system, UI specification, coverage,
 review, and approval-evidence fingerprints through public `Runtime.apply_transition()`. W04 does
 not generate frontend code, CSS, framework configuration, previews, or deployments.
+
+## Workspace and repository execution
+
+W05 treats the local workspace and Git repository as an execution substrate; ARCH Runtime remains
+the authority. Exact approved UI contracts produce a deterministic stack manifest, implementation
+plan, path ownership claims, changeset, dry-run, execution receipt, and review evidence.
+`WORKSPACE_PREPARED` therefore does not imply `IMPLEMENTATION_READY`.
+
+Dry-run performs no mutation and reports preconditions, collisions, destructive operations, Git
+actions, and policy violations. Apply rechecks the exact baseline under an exclusive workspace
+lock, confines every managed path to the approved root, preserves unrelated files, and records
+either verified success, exact no-op, rollback, or reconciliation-required evidence. Reusing an
+execution identity with a different changeset fails closed.
+
+Local Git support is deliberately narrow: inspect, initialize, explicitly stage managed paths, and
+create a local commit. There is no push, pull, reset, clean, remote creation, tag, or release API.
+Stack resolution has no hidden `latest`; probes use adapter-owned argv with `shell=False`, bounded
+output, timeout, and redaction. Secret-bearing files and content are rejected, while non-secret
+`.env.example` templates are permitted.
+
+Only a successful public Runtime transition from `UI_APPROVED` to `IMPLEMENTATION_READY`, bound to
+the exact post-state receipt and explicit approval evidence, authorizes the next phase. W05 creates
+no final UI, backend behavior, preview, deployment, or W06 product implementation.
