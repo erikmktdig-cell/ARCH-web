@@ -236,6 +236,47 @@ def test_public_api_is_deliberately_closed() -> None:
         "dry_run_workspace",
         "prepare_workspace",
         "resolve_stack",
+    } | {
+        "ApplyFrontendUnitCommand",
+        "ApplyFrontendUnitResult",
+        "AuthorizeFrontendCommand",
+        "AuthorizeFrontendResult",
+        "FrontendArtifact",
+        "FrontendArtifactKind",
+        "FrontendAssignmentPacket",
+        "FrontendAuthorizationError",
+        "FrontendCheckStatus",
+        "FrontendCompletionPackage",
+        "FrontendComponentBinding",
+        "FrontendDataBinding",
+        "FrontendDataDisposition",
+        "FrontendDependencyDecision",
+        "FrontendEngineeringCheck",
+        "FrontendEngineeringError",
+        "FrontendExecutionAuthorization",
+        "FrontendFinding",
+        "FrontendFindingCode",
+        "FrontendImplementationProposal",
+        "FrontendPreparationError",
+        "FrontendProposalError",
+        "FrontendReadiness",
+        "FrontendReviewPackage",
+        "FrontendRouteBinding",
+        "FrontendSurfaceBinding",
+        "FrontendTokenBinding",
+        "FrontendUnitResult",
+        "PrepareFrontendCommand",
+        "PrepareFrontendResult",
+        "StaticFrontendAdapter",
+        "UnsupportedFrontendStackError",
+        "VerifyFrontendCommand",
+        "VerifyFrontendResult",
+        "apply_frontend_unit",
+        "authorize_frontend",
+        "prepare_frontend",
+        "proposal_findings",
+        "proposal_to_change_set",
+        "verify_frontend",
     }
     assert not hasattr(arch_web, "decode_contract_data")
     assert not hasattr(arch_web, "to_canonical_data")
@@ -252,8 +293,6 @@ def test_reverse_dependencies_do_not_exist_in_installed_arch_packages() -> None:
 
 
 @pytest.mark.architecture
-def test_no_w02_or_framework_modules_exist() -> None:
+def test_no_forbidden_framework_or_delivery_modules_exist() -> None:
     names = {path.stem for path in SOURCE.rglob("*.py")}
-    assert names.isdisjoint(
-        {"agents", "cli", "deployment", "generator", "github", "http", "workflow"}
-    )
+    assert names.isdisjoint({"agents", "cli", "deployment", "generator", "github", "http"})

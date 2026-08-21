@@ -58,9 +58,11 @@ def test_only_runtime_bridge_depends_on_public_arch_runtime() -> None:
     assert runtime_importers == {
         "application/architecture/models.py",
         "application/design/models.py",
+        "application/frontend/models.py",
         "application/requirements/models.py",
         "application/workspace/models.py",
         "runtime_bridge/architecture.py",
+        "runtime_bridge/frontend.py",
         "runtime_bridge/requirements.py",
         "runtime_bridge/ui.py",
         "runtime_bridge/workspace.py",

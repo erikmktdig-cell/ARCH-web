@@ -27,3 +27,11 @@
 - Narrow local Git and allowlisted toolchain adapters with explicit staging, offline defaults,
   bounded/redacted diagnostics, and secret-artifact rejection.
 - Explicit implementation-readiness approval through public ARCH Runtime using exact W05 evidence.
+- WP-W06 immutable frontend authorization, assignment, proposal, artifact, traceability,
+  dependency, engineering-check, finding, completion, and review contracts.
+- Public Runtime authorization for `IMPLEMENTATION_READY` to `IMPLEMENTING` with zero workspace
+  mutation in the bridge.
+- Deterministic proposal validation and conversion to the W05 workspace execution layer, including
+  exact post-bootstrap baseline binding, path claims, drift/security checks, and reconciliation.
+- Explicit static reference adapter for semantic-token compilation and the governed frontend
+  vertical slice; unsupported stacks fail closed without a hidden default.

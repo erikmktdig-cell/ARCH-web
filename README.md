@@ -95,3 +95,22 @@ output, timeout, and redaction. Secret-bearing files and content are rejected, w
 Only a successful public Runtime transition from `UI_APPROVED` to `IMPLEMENTATION_READY`, bound to
 the exact post-state receipt and explicit approval evidence, authorizes the next phase. W05 creates
 no final UI, backend behavior, preview, deployment, or W06 product implementation.
+
+## Frontend engineering
+
+W06 turns exact `IMPLEMENTATION_READY` evidence into a bounded frontend assignment. Before the
+first source mutation, the public Runtime API must authorize the
+`IMPLEMENTATION_READY -> IMPLEMENTING` transition. The Runtime bridge never writes files, and an
+executor's output remains an untrusted proposal until scope, path, traceability, design, data,
+dependency, and browser-side security checks pass.
+
+Validated proposal bytes are converted into an exact W05 `WorkspaceChangeSet`; W05 remains the
+only filesystem and Git execution substrate. Framework behavior belongs to an explicitly selected
+stack adapter, with no hidden fallback. W06 includes a small static reference adapter only for the
+governance vertical slice.
+
+Completion evidence binds routes, surfaces, components, applicable states, semantic tokens,
+responsive rules, accessibility intent, pending W07 data boundaries, engineering checks, source
+tree evidence, and reconciliation status. Engineering checks do not claim rendered accessibility,
+visual, browser, preview, release, or deployment quality. W06 leaves lifecycle state at
+`IMPLEMENTING`; W08 owns rendered QA and later testing semantics.

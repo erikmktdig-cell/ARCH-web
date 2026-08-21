@@ -1,6 +1,7 @@
 """Stable public API for approved ARCH Web contracts and workflows."""
 
 from arch_web.__about__ import __version__
+from arch_web.adapters.frontend import StaticFrontendAdapter
 from arch_web.application import (
     ApplyWorkspaceCommand,
     ApplyWorkspaceResult,
@@ -53,6 +54,26 @@ from arch_web.application import (
     recommend_reference_profile,
     reference_design_profiles,
     resolve_stack,
+)
+from arch_web.application.frontend import (
+    ApplyFrontendUnitCommand,
+    ApplyFrontendUnitResult,
+    AuthorizeFrontendCommand,
+    AuthorizeFrontendResult,
+    FrontendAuthorizationError,
+    FrontendEngineeringError,
+    FrontendPreparationError,
+    FrontendProposalError,
+    PrepareFrontendCommand,
+    PrepareFrontendResult,
+    UnsupportedFrontendStackError,
+    VerifyFrontendCommand,
+    VerifyFrontendResult,
+    apply_frontend_unit,
+    prepare_frontend,
+    proposal_findings,
+    proposal_to_change_set,
+    verify_frontend,
 )
 from arch_web.contracts import (
     CURRENT_WEB_CONTRACT_VERSION,
@@ -171,14 +192,37 @@ from arch_web.domain import (
     WorkspaceReviewPackage,
     WorkspaceTarget,
 )
+from arch_web.domain.frontend import (
+    FrontendArtifact,
+    FrontendArtifactKind,
+    FrontendAssignmentPacket,
+    FrontendCheckStatus,
+    FrontendCompletionPackage,
+    FrontendComponentBinding,
+    FrontendDataBinding,
+    FrontendDataDisposition,
+    FrontendDependencyDecision,
+    FrontendEngineeringCheck,
+    FrontendExecutionAuthorization,
+    FrontendFinding,
+    FrontendFindingCode,
+    FrontendImplementationProposal,
+    FrontendReadiness,
+    FrontendReviewPackage,
+    FrontendRouteBinding,
+    FrontendSurfaceBinding,
+    FrontendTokenBinding,
+    FrontendUnitResult,
+)
 from arch_web.runtime_bridge import (
     approve_architecture,
     approve_implementation_readiness,
     approve_requirements,
     approve_ui_specification,
+    authorize_frontend,
 )
 
-__all__ = (
+__all__: tuple[str, ...] = (
     "CURRENT_WEB_CONTRACT_VERSION",
     "SUPPORTED_WEB_CONTRACT_VERSIONS",
     "AccessibilitySpec",
@@ -348,4 +392,47 @@ __all__ = (
     "recommend_reference_profile",
     "reference_design_profiles",
     "resolve_stack",
+)
+
+__all__ += (
+    "ApplyFrontendUnitCommand",
+    "ApplyFrontendUnitResult",
+    "AuthorizeFrontendCommand",
+    "AuthorizeFrontendResult",
+    "FrontendArtifact",
+    "FrontendArtifactKind",
+    "FrontendAssignmentPacket",
+    "FrontendAuthorizationError",
+    "FrontendCheckStatus",
+    "FrontendCompletionPackage",
+    "FrontendComponentBinding",
+    "FrontendDataBinding",
+    "FrontendDataDisposition",
+    "FrontendDependencyDecision",
+    "FrontendEngineeringCheck",
+    "FrontendEngineeringError",
+    "FrontendExecutionAuthorization",
+    "FrontendFinding",
+    "FrontendFindingCode",
+    "FrontendImplementationProposal",
+    "FrontendPreparationError",
+    "FrontendProposalError",
+    "FrontendReadiness",
+    "FrontendReviewPackage",
+    "FrontendRouteBinding",
+    "FrontendSurfaceBinding",
+    "FrontendTokenBinding",
+    "FrontendUnitResult",
+    "PrepareFrontendCommand",
+    "PrepareFrontendResult",
+    "StaticFrontendAdapter",
+    "UnsupportedFrontendStackError",
+    "VerifyFrontendCommand",
+    "VerifyFrontendResult",
+    "apply_frontend_unit",
+    "authorize_frontend",
+    "prepare_frontend",
+    "proposal_findings",
+    "proposal_to_change_set",
+    "verify_frontend",
 )

@@ -43,6 +43,28 @@ from arch_web.domain.enums import (
     WebRoute,
 )
 from arch_web.domain.errors import WebContractIntegrityError, WebContractValidationError
+from arch_web.domain.frontend import (
+    FrontendArtifact,
+    FrontendArtifactKind,
+    FrontendAssignmentPacket,
+    FrontendCheckStatus,
+    FrontendCompletionPackage,
+    FrontendComponentBinding,
+    FrontendDataBinding,
+    FrontendDataDisposition,
+    FrontendDependencyDecision,
+    FrontendEngineeringCheck,
+    FrontendExecutionAuthorization,
+    FrontendFinding,
+    FrontendFindingCode,
+    FrontendImplementationProposal,
+    FrontendReadiness,
+    FrontendReviewPackage,
+    FrontendRouteBinding,
+    FrontendSurfaceBinding,
+    FrontendTokenBinding,
+    FrontendUnitResult,
+)
 from arch_web.domain.information_architecture import WebInformationArchitectureContract
 from arch_web.domain.navigation import (
     NavigationEdge,
@@ -451,6 +473,78 @@ def decode_contract_data[ContractT: WebContractRecord](
             data["readiness"] = WorkspaceReadiness(data["readiness"])
             data["approval_evidence_ref"] = _evidence_ref(data.get("approval_evidence_ref"))
             result = WorkspaceReviewPackage(**data)
+        elif contract_class is FrontendExecutionAuthorization:
+            result = FrontendExecutionAuthorization(**data)
+        elif contract_class is FrontendAssignmentPacket:
+            data["runtime_state"] = WebLifecycleStatus(data["runtime_state"])
+            result = FrontendAssignmentPacket(**data)
+        elif contract_class is FrontendArtifact:
+            data["kind"] = FrontendArtifactKind(data["kind"])
+            result = FrontendArtifact(**data)
+        elif contract_class is FrontendSurfaceBinding:
+            result = FrontendSurfaceBinding(**data)
+        elif contract_class is FrontendRouteBinding:
+            result = FrontendRouteBinding(**data)
+        elif contract_class is FrontendComponentBinding:
+            result = FrontendComponentBinding(**data)
+        elif contract_class is FrontendDataBinding:
+            data["disposition"] = FrontendDataDisposition(data["disposition"])
+            result = FrontendDataBinding(**data)
+        elif contract_class is FrontendTokenBinding:
+            result = FrontendTokenBinding(**data)
+        elif contract_class is FrontendDependencyDecision:
+            result = FrontendDependencyDecision(**data)
+        elif contract_class is FrontendFinding:
+            data["code"] = FrontendFindingCode(data["code"])
+            result = FrontendFinding(**data)
+        elif contract_class is FrontendEngineeringCheck:
+            data["status"] = FrontendCheckStatus(data["status"])
+            result = FrontendEngineeringCheck(**data)
+        elif contract_class is FrontendImplementationProposal:
+            data["artifacts"] = tuple(
+                FrontendArtifact.from_data(item) for item in data["artifacts"]
+            )
+            data["surface_bindings"] = tuple(
+                FrontendSurfaceBinding.from_data(item) for item in data["surface_bindings"]
+            )
+            data["route_bindings"] = tuple(
+                FrontendRouteBinding.from_data(item) for item in data["route_bindings"]
+            )
+            data["component_bindings"] = tuple(
+                FrontendComponentBinding.from_data(item) for item in data["component_bindings"]
+            )
+            data["data_bindings"] = tuple(
+                FrontendDataBinding.from_data(item) for item in data["data_bindings"]
+            )
+            data["token_bindings"] = tuple(
+                FrontendTokenBinding.from_data(item) for item in data["token_bindings"]
+            )
+            data["dependency_decisions"] = tuple(
+                FrontendDependencyDecision.from_data(item) for item in data["dependency_decisions"]
+            )
+            data["findings"] = tuple(FrontendFinding.from_data(item) for item in data["findings"])
+            result = FrontendImplementationProposal(**data)
+        elif contract_class is FrontendUnitResult:
+            result = FrontendUnitResult(**data)
+        elif contract_class is FrontendCompletionPackage:
+            data["runtime_state"] = WebLifecycleStatus(data["runtime_state"])
+            data["authorization_ref"] = cast(ContractRef, _contract_ref(data["authorization_ref"]))
+            data["receipt"] = WorkspaceExecutionReceipt.from_data(data["receipt"])
+            data["unit_results"] = tuple(
+                FrontendUnitResult.from_data(item) for item in data["unit_results"]
+            )
+            data["engineering_checks"] = tuple(
+                FrontendEngineeringCheck.from_data(item) for item in data["engineering_checks"]
+            )
+            data["findings"] = tuple(FrontendFinding.from_data(item) for item in data["findings"])
+            data["reconciliation_status"] = ReconciliationStatus(data["reconciliation_status"])
+            data["readiness"] = FrontendReadiness(data["readiness"])
+            result = FrontendCompletionPackage(**data)
+        elif contract_class is FrontendReviewPackage:
+            data["completion_ref"] = cast(ContractRef, _contract_ref(data["completion_ref"]))
+            data["findings"] = tuple(FrontendFinding.from_data(item) for item in data["findings"])
+            data["readiness"] = FrontendReadiness(data["readiness"])
+            result = FrontendReviewPackage(**data)
         elif contract_class is WebProjectProfile:
             data["route"] = WebRoute(data["route"])
             data["project_kind"] = ProjectKind(data["project_kind"])
