@@ -54,7 +54,10 @@ def test_application_database_access_is_bounded_and_runtime_private_api_absent()
         for path in SOURCE.rglob("*.py")
         if "sqlite3" in _imports(path)
     }
-    assert sqlite_users == {"adapters/backend/sqlite.py"}
+    assert sqlite_users == {
+        "adapters/backend/sqlite.py",
+        "adapters/qa/integration.py",
+    }
     imports = {item for path in SOURCE.rglob("*.py") for item in _imports(path)}
     assert not any(item.startswith("arch_runtime.") for item in imports)
 

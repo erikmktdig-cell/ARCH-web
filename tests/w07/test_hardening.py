@@ -6,6 +6,7 @@ import hashlib
 import sqlite3
 from dataclasses import replace
 from pathlib import Path
+from typing import cast
 
 import pytest
 from hypothesis import given
@@ -37,6 +38,7 @@ from arch_web import (
     verify_backend,
 )
 from arch_web.contracts.versions import CURRENT_WEB_CONTRACT_VERSION
+from arch_web.ports.backend import BackendStackAdapter
 from w07.factories import backend_bundle
 
 
@@ -176,11 +178,12 @@ def test_verification_fails_closed_for_state_stack_and_checks(tmp_path: Path) ->
     )
     with pytest.raises(BackendProposalError, match="IMPLEMENTING"):
         verify_backend(
-            replace(command, project_status=WebLifecycleStatus.TESTING), _FailureAdapter()
+            replace(command, project_status=WebLifecycleStatus.TESTING),
+            cast(BackendStackAdapter, _FailureAdapter()),
         )
     with pytest.raises(UnsupportedBackendStackError, match="unsupported"):
-        verify_backend(command, _FailureAdapter(supported=False))
-    completion = verify_backend(command, _FailureAdapter()).completion
+        verify_backend(command, cast(BackendStackAdapter, _FailureAdapter(supported=False)))
+    completion = verify_backend(command, cast(BackendStackAdapter, _FailureAdapter())).completion
     assert completion.disposition is BackendDisposition.BLOCKED
     assert {item.code for item in completion.findings} == {
         BackendFindingCode.CHECK_FAILED,

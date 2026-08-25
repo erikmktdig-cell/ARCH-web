@@ -281,8 +281,17 @@ def backend_bundle(root: Path) -> tuple[Any, ...]:
     )
     prepared_backend = prepare_backend(command)
     adapter = PythonSQLiteBackendAdapter()
+    interface, data, authentication, rules, persistence, migrations, integrations = contracts
     proposal = adapter.reference_proposal(
-        prepared_backend.assignment, *contracts[:-1], contracts[-1], plan
+        prepared_backend.assignment,
+        interface,
+        data,
+        authentication,
+        rules,
+        persistence,
+        migrations,
+        integrations,
+        plan,
     )
     apply = ApplyBackendUnitCommand(
         "execution:w07-backend",

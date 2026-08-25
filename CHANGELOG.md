@@ -45,6 +45,13 @@
   rollback evidence, and local idempotent integration double.
 - Architecture guards that confine `sqlite3` to the bounded backend adapter and prohibit Runtime
   persistence reuse, public-network test dependencies, W08 QA, and W09 delivery scope.
+- WP-W08 immutable candidate, QA profile, scope, scenario, result, evidence, finding, coverage,
+  review, and release-readiness contracts with canonical round-trip codecs.
+- Public Runtime transitions from `IMPLEMENTING` to `TESTING` and from `TESTING` to
+  `RELEASE_READY`, bound to exact candidate and independently approved QA evidence.
+- Isolated loopback preview, raw-CDP local Chromium execution, disposable generated-backend
+  integration, responsive/accessibility/design observation, bounded flakiness, and fail-closed
+  release-readiness aggregation without public internet or product-source remediation.
 
 ### Fixed
 
@@ -52,3 +59,7 @@
   transaction instead of relying on `executescript`, preserving rollback on a failing step.
 - Earlier W05/W06 architecture tests now distinguish the authorized W07 backend adapter from still
   forbidden browser, deployment, framework, and remote-delivery dependencies.
+- Browser support policies now normalize engine/version pairs together, preventing version drift
+  when caller order differs.
+- Multi-viewport evidence and review references now deduplicate and sort by their public contract
+  identities, preserving canonical QA aggregation.

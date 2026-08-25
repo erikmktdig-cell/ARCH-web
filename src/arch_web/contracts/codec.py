@@ -109,6 +109,41 @@ from arch_web.domain.navigation import (
 )
 from arch_web.domain.product_brief import WebProductBrief
 from arch_web.domain.project import WebProjectProfile
+from arch_web.domain.qa import (
+    AccessibilityQAEvidence,
+    BrowserSupportPolicy,
+    FunctionalQAEvidence,
+    IntegrationQAEvidence,
+    PerformanceQAEvidence,
+    PreviewEnvironmentEvidence,
+    PreviewPlan,
+    QABaselineProfile,
+    QACandidateBaseline,
+    QACoverageDisposition,
+    QACoverageItem,
+    QACoverageMatrix,
+    QAEvidence,
+    QAExecutionAuthorization,
+    QAExpectation,
+    QAFinding,
+    QAFindingDisposition,
+    QAReadiness,
+    QAResult,
+    QAReviewPackage,
+    QARun,
+    QAScenario,
+    QAScope,
+    QASeverity,
+    QAStatus,
+    QAStep,
+    ReleaseReadinessPackage,
+    ResponsiveQAEvidence,
+    SecurityBehaviorEvidence,
+    ViewportPolicy,
+    ViewportSpec,
+    VisualComparisonDisposition,
+    VisualQAEvidence,
+)
 from arch_web.domain.references import ContractRef, DesignReference, EvidenceRef
 from arch_web.domain.requirements import WebRequirement, WebRequirementsContract
 from arch_web.domain.requirements_review import (
@@ -685,6 +720,97 @@ def decode_contract_data[ContractT: WebContractRecord](
             data["findings"] = tuple(FrontendFinding.from_data(item) for item in data["findings"])
             data["readiness"] = FrontendReadiness(data["readiness"])
             result = FrontendReviewPackage(**data)
+        elif contract_class is BrowserSupportPolicy:
+            result = BrowserSupportPolicy(**data)
+        elif contract_class is ViewportSpec:
+            result = ViewportSpec(**data)
+        elif contract_class is ViewportPolicy:
+            data["viewports"] = tuple(ViewportSpec.from_data(item) for item in data["viewports"])
+            result = ViewportPolicy(**data)
+        elif contract_class is QABaselineProfile:
+            data["route"] = WebRoute(data["route"])
+            data["browser_policy"] = BrowserSupportPolicy.from_data(data["browser_policy"])
+            data["viewport_policy"] = ViewportPolicy.from_data(data["viewport_policy"])
+            data["visual_baseline_ref"] = _evidence_ref(data.get("visual_baseline_ref"))
+            data["performance_budgets"] = tuple(tuple(item) for item in data["performance_budgets"])
+            result = QABaselineProfile(**data)
+        elif contract_class is QACandidateBaseline:
+            data["route"] = WebRoute(data["route"])
+            data["runtime_state"] = WebLifecycleStatus(data["runtime_state"])
+            data["reconciliation_status"] = ReconciliationStatus(data["reconciliation_status"])
+            result = QACandidateBaseline(**data)
+        elif contract_class is QAExpectation:
+            result = QAExpectation(**data)
+        elif contract_class is QAStep:
+            data["expectations"] = tuple(
+                QAExpectation.from_data(item) for item in data["expectations"]
+            )
+            result = QAStep(**data)
+        elif contract_class is QAScenario:
+            data["steps"] = tuple(QAStep.from_data(item) for item in data["steps"])
+            result = QAScenario(**data)
+        elif contract_class is QAScope:
+            data["route"] = WebRoute(data["route"])
+            data["scenarios"] = tuple(QAScenario.from_data(item) for item in data["scenarios"])
+            result = QAScope(**data)
+        elif contract_class is QAExecutionAuthorization:
+            data["runtime_state"] = WebLifecycleStatus(data["runtime_state"])
+            result = QAExecutionAuthorization(**data)
+        elif contract_class is PreviewPlan:
+            result = PreviewPlan(**data)
+        elif contract_class is PreviewEnvironmentEvidence:
+            result = PreviewEnvironmentEvidence(**data)
+        elif contract_class is QAResult:
+            data["status"] = QAStatus(data["status"])
+            data["attempt_statuses"] = tuple(QAStatus(item) for item in data["attempt_statuses"])
+            result = QAResult(**data)
+        elif contract_class is QARun:
+            data["results"] = tuple(QAResult.from_data(item) for item in data["results"])
+            result = QARun(**data)
+        elif contract_class in {
+            QAEvidence,
+            FunctionalQAEvidence,
+            IntegrationQAEvidence,
+            AccessibilityQAEvidence,
+            ResponsiveQAEvidence,
+            PerformanceQAEvidence,
+            SecurityBehaviorEvidence,
+        }:
+            data["status"] = QAStatus(data["status"])
+            evidence_class = cast(type[QAEvidence], contract_class)
+            result = evidence_class(**data)
+        elif contract_class is VisualQAEvidence:
+            data["status"] = QAStatus(data["status"])
+            data["comparison"] = VisualComparisonDisposition(data["comparison"])
+            result = VisualQAEvidence(**data)
+        elif contract_class is QAFinding:
+            data["severity"] = QASeverity(data["severity"])
+            data["disposition"] = QAFindingDisposition(data["disposition"])
+            result = QAFinding(**data)
+        elif contract_class is QACoverageItem:
+            data["disposition"] = QACoverageDisposition(data["disposition"])
+            result = QACoverageItem(**data)
+        elif contract_class is QACoverageMatrix:
+            data["items"] = tuple(QACoverageItem.from_data(item) for item in data["items"])
+            result = QACoverageMatrix(**data)
+        elif contract_class is QAReviewPackage:
+            for field_name in ("candidate_ref", "scope_ref", "run_ref", "preview_ref"):
+                data[field_name] = cast(ContractRef, _contract_ref(data[field_name]))
+            data["evidence_refs"] = tuple(
+                cast(ContractRef, _contract_ref(item)) for item in data["evidence_refs"]
+            )
+            data["coverage_matrix"] = QACoverageMatrix.from_data(data["coverage_matrix"])
+            data["findings"] = tuple(QAFinding.from_data(item) for item in data["findings"])
+            data["reconciliation_status"] = ReconciliationStatus(data["reconciliation_status"])
+            data["readiness"] = QAReadiness(data["readiness"])
+            data["approval_evidence"] = _evidence_ref(data.get("approval_evidence"))
+            result = QAReviewPackage(**data)
+        elif contract_class is ReleaseReadinessPackage:
+            data["runtime_state"] = WebLifecycleStatus(data["runtime_state"])
+            data["findings"] = tuple(QAFinding.from_data(item) for item in data["findings"])
+            data["reconciliation_status"] = ReconciliationStatus(data["reconciliation_status"])
+            data["approval_evidence"] = cast(EvidenceRef, _evidence_ref(data["approval_evidence"]))
+            result = ReleaseReadinessPackage(**data)
         elif contract_class is WebProjectProfile:
             data["route"] = WebRoute(data["route"])
             data["project_kind"] = ProjectKind(data["project_kind"])

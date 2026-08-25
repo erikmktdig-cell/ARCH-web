@@ -134,3 +134,25 @@ Backend completion binds the exact pre/post tree, W06 evidence, binding matrix, 
 migrations, engineering checks, findings, and reconciliation state. A truly static project with no
 backend units and no pending bindings receives deterministic `NOT_APPLICABLE` evidence. W07 keeps
 the lifecycle at `IMPLEMENTING`; it does not claim W08 testing/QA or W09 release readiness.
+
+## Testing, preview, and design QA
+
+W08 freezes an exact `QACandidateBaseline` from the approved W05-W07 evidence, source-tree
+fingerprint, Git HEAD, build artifacts, Runtime version/fingerprint, route, and explicitly adopted
+QA profile. Public Runtime authorization moves that exact candidate from `IMPLEMENTING` to
+`TESTING`; preparation alone never implies that QA passed.
+
+The reference vertical slice starts an isolated loopback preview, drives a locally provisioned
+Chromium browser through CDP, records actual interaction/focus/responsive/console/network evidence,
+and executes the generated backend against a disposable application SQLite database. The adapter
+tests server validation, owner-scoped authorization, persistence, and Runtime-database separation,
+then removes the application database. It requires no public internet or production data.
+
+Without an externally approved screenshot baseline and threshold, visual QA remains structural and
+contract-bound; it never claims pixel equivalence. Automated accessibility evidence likewise does
+not claim WCAG certification. Browser unavailability, unstable attempts, stale evidence, missing
+material coverage, failed cleanup, and blocking findings cannot silently become PASS.
+
+Only exact, current, clean evidence plus explicit external approval may request
+`TESTING -> RELEASE_READY` through public `Runtime.apply_transition()`. W08 has no `DEPLOYED`
+transition, deployment adapter, push, tag, release, or product-source remediation path.

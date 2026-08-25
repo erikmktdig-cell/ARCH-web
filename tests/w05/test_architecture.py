@@ -29,7 +29,11 @@ def test_subprocess_is_confined_to_git_and_toolchain_adapters() -> None:
         for path in SOURCE.rglob("*.py")
         if "subprocess" in _imports(path)
     }
-    assert users == {"adapters/local/git.py", "adapters/local/toolchain.py"}
+    assert users == {
+        "adapters/local/git.py",
+        "adapters/local/toolchain.py",
+        "adapters/qa/chromium.py",
+    }
 
 
 @pytest.mark.architecture
@@ -67,5 +71,8 @@ def test_no_remote_deployment_browser_or_product_framework_dependencies() -> Non
         for path in SOURCE.rglob("*.py")
         if "sqlite3" in _imports(path)
     }
-    assert sqlite_users == {"adapters/backend/sqlite.py"}
+    assert sqlite_users == {
+        "adapters/backend/sqlite.py",
+        "adapters/qa/integration.py",
+    }
     assert not any(item.startswith("arch_runtime.") for item in imports)
