@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0 - 2026-08-26
+
 ### Added
 
 - WP-W01 immutable web project contracts and closed enums.
@@ -74,3 +76,13 @@
   identities, preserving canonical QA aggregation.
 - Disposable deployment paths derive filesystem-safe provider identities instead of using semantic
   execution IDs directly, preserving Windows portability without changing governed evidence.
+
+### Release hardening
+
+- Added immutable-SHA GitHub Actions for supported Python versions on Ubuntu and Windows,
+  isolated installed-distribution checks, artifact inspection, and connected dependency audit.
+- Added deterministic release manifests, source and distribution leakage checks, and
+  byte-reproducibility verification for wheel and sdist builds.
+- Added a private vulnerability reporting policy and monthly Dependabot checks.
+- Excluded the test suite and disposable local state from published distributions while retaining
+  typed package metadata and reviewable public sources.

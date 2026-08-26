@@ -9,3 +9,14 @@ build/
 dist/
 __pycache__/
 *.py[cod]
+.env
+.env.*
+!.env.example
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+htmlcov/
+audit-requirements.txt

@@ -2,6 +2,20 @@
 
 `arch-web` defines immutable, framework-neutral contracts for governed web projects.
 
+## Installation
+
+ARCH Web 0.1.x supports Python 3.12 and 3.13:
+
+```console
+python -m pip install "arch-web>=0.1.0,<0.2.0"
+```
+
+The supported release chain is `arch-web 0.1.x` -> `arch-runtime 0.1.x` ->
+`arch-kernel 0.1.x`. Package metadata uses compatible release ranges; development and CI pin the
+approved `v0.1.0` Git tags until all distributions are available from the package index. Minor
+`0.1.x` releases may add compatible contracts and fixes. Breaking public-contract changes require
+a new minor line while the project remains below 1.0.
+
 The dependency direction is intentionally one-way:
 
 ```text
@@ -179,3 +193,15 @@ explicitly distinguishes rollback from roll-forward-only cases; uncertain extern
 `RELEASE_READY -> DEPLOYED`, and that bridge performs no network, filesystem, Git, provider, or
 migration work. The bundled loopback provider is an explicit disposable reference adapter, never a
 production default. Implementing W09 does not tag, push, publish, release, or deploy `arch-web`.
+
+## Release evidence
+
+The v0.1.0 closeout verifies the full test suite, branch coverage, source boundaries, wheel and
+sdist contents, isolated Python 3.12/3.13 installs, dependency advisories, hosted CI, and repository
+governance. Exact commit, artifact hashes, CI runs, and residual limitations are recorded in
+`docs/WEB_V0_1_0_RELEASE_REPORT.md` and the generated release manifest attached to the GitHub
+Release.
+
+This first governed release provides a library and reference adapters. It does not claim general
+production readiness for generated applications, WCAG certification, cloud-provider coverage, or
+full-system acceptance; those require separate evidence.
