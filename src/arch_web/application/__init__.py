@@ -117,7 +117,7 @@ from arch_web.application.workspace import (
     resolve_stack,
 )
 
-__all__ = (
+__all__: tuple[str, ...] = (
     "ApplyBackendUnitCommand",
     "ApplyBackendUnitResult",
     "ApplyFrontendUnitCommand",
@@ -216,4 +216,50 @@ __all__ = (
     "resolve_stack",
     "verify_backend",
     "verify_frontend",
+)
+
+from arch_web.application.release import (
+    ApproveDeploymentCommand,
+    ApproveDeploymentResult,
+    AuthorizeDeploymentCommand,
+    AuthorizeDeploymentResult,
+    DeploymentApprovalError,
+    DeploymentAuthorizationError,
+    DeploymentExecutionError,
+    DeploymentVerificationError,
+    ExecuteDeploymentCommand,
+    ExecuteDeploymentResult,
+    PrepareReleaseCommand,
+    PrepareReleaseResult,
+    ReleasePreparationError,
+    ReleaseWorkflowError,
+    VerifyDeploymentCommand,
+    VerifyDeploymentResult,
+    authorize_deployment,
+    execute_deployment,
+    prepare_release,
+    verify_deployment,
+)
+
+__all__ += (
+    "ApproveDeploymentCommand",
+    "ApproveDeploymentResult",
+    "AuthorizeDeploymentCommand",
+    "AuthorizeDeploymentResult",
+    "DeploymentApprovalError",
+    "DeploymentAuthorizationError",
+    "DeploymentExecutionError",
+    "DeploymentVerificationError",
+    "ExecuteDeploymentCommand",
+    "ExecuteDeploymentResult",
+    "PrepareReleaseCommand",
+    "PrepareReleaseResult",
+    "ReleasePreparationError",
+    "ReleaseWorkflowError",
+    "VerifyDeploymentCommand",
+    "VerifyDeploymentResult",
+    "authorize_deployment",
+    "execute_deployment",
+    "prepare_release",
+    "verify_deployment",
 )

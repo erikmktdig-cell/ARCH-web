@@ -14,11 +14,13 @@ from arch_web.adapters.qa import (
     StructuralRuntimeObservationAdapter,
     StructuralVisualAdapter,
 )
+from arch_web.adapters.release import LocalDeploymentProvider
 
 __all__ = (
     "ApplicationSQLiteHarness",
     "LocalBackendIntegrationAdapter",
     "LocalChromiumAdapter",
+    "LocalDeploymentProvider",
     "LocalIntegrationDouble",
     "LocalPreviewAdapter",
     "LocalPreviewSession",

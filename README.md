@@ -156,3 +156,26 @@ material coverage, failed cleanup, and blocking findings cannot silently become 
 Only exact, current, clean evidence plus explicit external approval may request
 `TESTING -> RELEASE_READY` through public `Runtime.apply_transition()`. W08 has no `DEPLOYED`
 transition, deployment adapter, push, tag, release, or product-source remediation path.
+
+## Deployment and release
+
+W09 freezes an exact `RELEASE_READY` candidate and binds the W08 package, tested source tree and
+Git commit, immutable artifact digests, target environment, non-secret configuration, secret
+references, provider profile, migration disposition, rollout strategy, and recovery plan. The
+preferred invariant is build once and deploy the exact artifact that W08 tested; floating branches,
+`latest`, stale evidence, config drift, raw secrets, test-system leakage, unsafe migrations, and
+unapproved production providers fail closed.
+
+Planning is deterministic and performs no provider mutation. Execution requires a separate
+`DeploymentExecutionAuthorization` bound to the exact candidate, plan, environment, adapter,
+artifact, migration plan, prior deployment, reviewer evidence, and idempotency identity. Provider
+success produces a receipt, not project authority. Application-level health, exact artifact,
+frontend/backend smoke, security behavior, mock leakage, and applicable TLS checks must pass, and
+reconciliation must be clean before final approval.
+
+Application migrations remain separate from ARCH Runtime/K10 and SQL schema migrations. Recovery
+explicitly distinguishes rollback from roll-forward-only cases; uncertain external state becomes
+`RECONCILIATION_REQUIRED` and never `DEPLOYED`. Only the public Runtime bridge can request
+`RELEASE_READY -> DEPLOYED`, and that bridge performs no network, filesystem, Git, provider, or
+migration work. The bundled loopback provider is an explicit disposable reference adapter, never a
+production default. Implementing W09 does not tag, push, publish, release, or deploy `arch-web`.

@@ -87,7 +87,12 @@ def test_no_w08_delivery_or_remote_modules_exist() -> None:
         "release",
         "server",
     }
-    assert {path.stem for path in SOURCE.rglob("*.py")}.isdisjoint(forbidden)
+    paths = [
+        SOURCE / "domain" / "frontend.py",
+        *(SOURCE / "application" / "frontend").glob("*.py"),
+        *(SOURCE / "adapters" / "frontend").glob("*.py"),
+    ]
+    assert {path.stem for path in paths}.isdisjoint(forbidden)
 
 
 @pytest.mark.architecture

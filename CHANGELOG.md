@@ -52,6 +52,15 @@
 - Isolated loopback preview, raw-CDP local Chromium execution, disposable generated-backend
   integration, responsive/accessibility/design observation, bounded flakiness, and fail-closed
   release-readiness aggregation without public internet or product-source remediation.
+- WP-W09 immutable release candidate, artifact, environment/config/secret, provider, deployment,
+  production-migration, verification, rollback, reconciliation, finding, review, and final approval
+  contracts with deterministic canonical evidence.
+- Explicit execution authorization, exact provider/artifact binding, idempotent bounded deployment,
+  application-level post-deploy verification, and public Runtime `RELEASE_READY` to `DEPLOYED`
+  approval without treating provider success as authority.
+- Disposable loopback deployment and application-schema fixture proving exact artifact promotion,
+  real HTTP health/smoke checks, migration preconditions, rollback, reconciliation, and cleanup
+  without cloud credentials, public internet, tags, push, publication, or production mutation.
 
 ### Fixed
 
@@ -63,3 +72,5 @@
   when caller order differs.
 - Multi-viewport evidence and review references now deduplicate and sort by their public contract
   identities, preserving canonical QA aggregation.
+- Disposable deployment paths derive filesystem-safe provider identities instead of using semantic
+  execution IDs directly, preserving Windows portability without changing governed evidence.

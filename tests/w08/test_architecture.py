@@ -62,13 +62,19 @@ def test_browser_and_preview_capabilities_are_confined_to_qa_adapters() -> None:
         "adapters/local/toolchain.py",
         "application/backend/execution.py",
         "application/frontend/execution.py",
+        "adapters/release/local.py",
     }
 
 
 @pytest.mark.architecture
 def test_w08_does_not_add_delivery_or_remediation_surfaces() -> None:
     forbidden = {"deployment", "remediation", "release", "server", "w09"}
-    assert {path.stem for path in SOURCE.rglob("*.py")}.isdisjoint(forbidden)
+    paths = [
+        SOURCE / "domain" / "qa.py",
+        *(SOURCE / "application" / "qa").glob("*.py"),
+        *(SOURCE / "adapters" / "qa").glob("*.py"),
+    ]
+    assert {path.stem for path in paths}.isdisjoint(forbidden)
 
 
 @pytest.mark.architecture

@@ -145,6 +145,36 @@ from arch_web.domain.qa import (
     VisualQAEvidence,
 )
 from arch_web.domain.references import ContractRef, DesignReference, EvidenceRef
+from arch_web.domain.release import (
+    DeploymentApprovalPackage,
+    DeploymentAttempt,
+    DeploymentExecutionAuthorization,
+    DeploymentOutcome,
+    DeploymentPlan,
+    DeploymentProviderProfile,
+    DeploymentReceipt,
+    DeploymentStep,
+    DeploymentStrategy,
+    EnvironmentClass,
+    EnvironmentConfigContract,
+    MigrationRisk,
+    PostDeployVerificationEvidence,
+    PostDeployVerificationPlan,
+    ProductionMigrationExecutionEvidence,
+    ProductionMigrationPlan,
+    RecoveryDisposition,
+    ReleaseArtifact,
+    ReleaseCandidateManifest,
+    ReleaseFinding,
+    ReleaseFindingSeverity,
+    ReleaseReadiness,
+    ReleaseReviewPackage,
+    ReleaseVersion,
+    RollbackExecutionEvidence,
+    RollbackPlan,
+    SecretReference,
+    TargetEnvironment,
+)
 from arch_web.domain.requirements import WebRequirement, WebRequirementsContract
 from arch_web.domain.requirements_review import (
     FindingCode,
@@ -811,6 +841,90 @@ def decode_contract_data[ContractT: WebContractRecord](
             data["reconciliation_status"] = ReconciliationStatus(data["reconciliation_status"])
             data["approval_evidence"] = cast(EvidenceRef, _evidence_ref(data["approval_evidence"]))
             result = ReleaseReadinessPackage(**data)
+        elif contract_class is ReleaseVersion:
+            result = ReleaseVersion(**data)
+        elif contract_class is ReleaseArtifact:
+            result = ReleaseArtifact(**data)
+        elif contract_class is SecretReference:
+            result = SecretReference(**data)
+        elif contract_class is DeploymentProviderProfile:
+            data["supported_strategies"] = tuple(
+                DeploymentStrategy(item) for item in data["supported_strategies"]
+            )
+            result = DeploymentProviderProfile(**data)
+        elif contract_class is TargetEnvironment:
+            data["environment_class"] = EnvironmentClass(data["environment_class"])
+            result = TargetEnvironment(**data)
+        elif contract_class is EnvironmentConfigContract:
+            data["values"] = tuple(tuple(item) for item in data["values"])
+            data["derived_values"] = tuple(tuple(item) for item in data["derived_values"])
+            data["secret_refs"] = tuple(
+                SecretReference.from_data(item) for item in data["secret_refs"]
+            )
+            result = EnvironmentConfigContract(**data)
+        elif contract_class is ProductionMigrationPlan:
+            data["risk"] = MigrationRisk(data["risk"])
+            result = ProductionMigrationPlan(**data)
+        elif contract_class is ProductionMigrationExecutionEvidence:
+            result = ProductionMigrationExecutionEvidence(**data)
+        elif contract_class is RollbackPlan:
+            data["disposition"] = RecoveryDisposition(data["disposition"])
+            result = RollbackPlan(**data)
+        elif contract_class is RollbackExecutionEvidence:
+            result = RollbackExecutionEvidence(**data)
+        elif contract_class is ReleaseCandidateManifest:
+            data["route"] = WebRoute(data["route"])
+            data["runtime_state"] = WebLifecycleStatus(data["runtime_state"])
+            data["release_readiness"] = ReleaseReadinessPackage.from_data(data["release_readiness"])
+            version = data.get("release_version")
+            data["release_version"] = None if version is None else ReleaseVersion.from_data(version)
+            data["artifacts"] = tuple(ReleaseArtifact.from_data(item) for item in data["artifacts"])
+            result = ReleaseCandidateManifest(**data)
+        elif contract_class is DeploymentStep:
+            result = DeploymentStep(**data)
+        elif contract_class is DeploymentPlan:
+            data["strategy"] = DeploymentStrategy(data["strategy"])
+            data["rollback_plan"] = RollbackPlan.from_data(data["rollback_plan"])
+            data["steps"] = tuple(DeploymentStep.from_data(item) for item in data["steps"])
+            result = DeploymentPlan(**data)
+        elif contract_class is DeploymentExecutionAuthorization:
+            data["reviewer_evidence"] = tuple(
+                cast(EvidenceRef, _evidence_ref(item)) for item in data["reviewer_evidence"]
+            )
+            result = DeploymentExecutionAuthorization(**data)
+        elif contract_class is DeploymentAttempt:
+            result = DeploymentAttempt(**data)
+        elif contract_class is DeploymentReceipt:
+            data["outcome"] = DeploymentOutcome(data["outcome"])
+            data["reconciliation_status"] = ReconciliationStatus(data["reconciliation_status"])
+            migration = data.get("migration_evidence")
+            data["migration_evidence"] = (
+                None
+                if migration is None
+                else ProductionMigrationExecutionEvidence.from_data(migration)
+            )
+            result = DeploymentReceipt(**data)
+        elif contract_class is PostDeployVerificationPlan:
+            result = PostDeployVerificationPlan(**data)
+        elif contract_class is PostDeployVerificationEvidence:
+            data["check_results"] = tuple(tuple(item) for item in data["check_results"])
+            result = PostDeployVerificationEvidence(**data)
+        elif contract_class is ReleaseFinding:
+            data["severity"] = ReleaseFindingSeverity(data["severity"])
+            result = ReleaseFinding(**data)
+        elif contract_class is ReleaseReviewPackage:
+            data["findings"] = tuple(ReleaseFinding.from_data(item) for item in data["findings"])
+            data["readiness"] = ReleaseReadiness(data["readiness"])
+            result = ReleaseReviewPackage(**data)
+        elif contract_class is DeploymentApprovalPackage:
+            data["route"] = WebRoute(data["route"])
+            data["runtime_state"] = WebLifecycleStatus(data["runtime_state"])
+            data["findings"] = tuple(ReleaseFinding.from_data(item) for item in data["findings"])
+            data["reconciliation_status"] = ReconciliationStatus(data["reconciliation_status"])
+            data["reviewer_evidence"] = tuple(
+                cast(EvidenceRef, _evidence_ref(item)) for item in data["reviewer_evidence"]
+            )
+            result = DeploymentApprovalPackage(**data)
         elif contract_class is WebProjectProfile:
             data["route"] = WebRoute(data["route"])
             data["project_kind"] = ProjectKind(data["project_kind"])

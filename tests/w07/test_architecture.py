@@ -64,7 +64,12 @@ def test_application_database_access_is_bounded_and_runtime_private_api_absent()
 
 @pytest.mark.architecture
 def test_w07_contains_no_delivery_or_qa_scope() -> None:
-    names = {path.stem for path in SOURCE.rglob("*.py")}
+    paths = [
+        SOURCE / "domain" / "backend.py",
+        *(SOURCE / "application" / "backend").glob("*.py"),
+        *(SOURCE / "adapters" / "backend").glob("*.py"),
+    ]
+    names = {path.stem for path in paths}
     assert names.isdisjoint({"browser_qa", "deployment", "preview", "release", "server"})
 
 
