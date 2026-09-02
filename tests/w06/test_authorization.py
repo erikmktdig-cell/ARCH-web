@@ -17,7 +17,8 @@ from arch_web import (
     WebLifecycleStatus,
     authorize_frontend,
 )
-from w02.factories import REQUEST_ID
+from runtime_authority import runtime_project
+from w02.factories import PROJECT_ID, REQUEST_ID
 from w06.factories import prepared_frontend
 
 
@@ -30,6 +31,16 @@ class FakeRuntime:
         self.result = _result(success)
         self.commands: list[ApplyTransitionCommand] = []
         self.saved: dict[str, tuple[dict[str, object], ApplyTransitionResult]] = {}
+        self.project = runtime_project(
+            WebLifecycleStatus.IMPLEMENTATION_READY,
+            project_id=PROJECT_ID,
+            record_version=6,
+            record_fingerprint=f"sha256:{'a' * 64}",
+            content_fingerprint=f"sha256:{'b' * 64}",
+        )
+
+    def get_project(self, project_id: object) -> object:
+        return self.project
 
     def apply_transition(self, command: ApplyTransitionCommand) -> ApplyTransitionResult:
         payload = command.request_payload()
@@ -55,7 +66,7 @@ def authorization_command(root: Path, **changes: object) -> AuthorizeFrontendCom
         "idempotency_key": "web:frontend:authorize:1",
         "request_id": REQUEST_ID,
         "transition_key": "web.frontend.implementing",
-        "expected_runtime_state": "implementation_ready",
+        "expected_runtime_state": "IMPLEMENTATION_READY",
         "expected_record_version": command.runtime_record_version,
         "expected_record_fingerprint": command.runtime_record_fingerprint,
         "expected_content_fingerprint": "sha256:" + "b" * 64,
@@ -74,7 +85,7 @@ def test_runtime_authorizes_before_any_source_mutation(tmp_path: Path) -> None:
     assert tuple(tmp_path.rglob("*")) == before
     metadata = runtime.commands[0].metadata
     assert metadata["web_transition"] == "IMPLEMENTATION_READY->IMPLEMENTING"
-    assert metadata["blocking_finding_count"] == 0
+    assert metadata["blocking_finding_count"] == "0"
 
 
 def test_runtime_rejection_is_preserved_as_unauthorized(tmp_path: Path) -> None:
@@ -94,7 +105,7 @@ def test_exact_retry_is_idempotent(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     ("changes", "message"),
     [
-        ({"project_status": WebLifecycleStatus.UI_APPROVED}, "IMPLEMENTATION_READY"),
+        ({"project_status": WebLifecycleStatus.UI_APPROVED}, "Caller lifecycle"),
         ({"expected_assignment_fingerprint": "stale"}, "assignment"),
         ({"expected_record_version": 99}, "version"),
         ({"expected_record_fingerprint": "stale"}, "fingerprint"),

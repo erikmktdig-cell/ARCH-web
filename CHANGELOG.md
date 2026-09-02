@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Added
+
+- C03 canonical `arch_web.project_lifecycle` workflow definition, deterministic adjacent
+  transition registry, explicit Web workflow initialization, and Runtime-backed lifecycle
+  evidence.
+- Real SQLite cross-stack coverage for the complete DRAFT-to-DEPLOYED W02-W09 lifecycle,
+  including aggregate/workflow CAS, event continuity, and exact idempotent replay.
+
+### Fixed
+
+- Web approval bridges now target `WORKFLOW_STATE` instead of the phase-oriented
+  `PROJECT_LIFECYCLE`, and treat caller lifecycle fields only as fail-closed assertions.
+- Runtime metadata is normalized to `dict[str, str]`; structured evidence uses canonical JSON
+  strings and absent optional values are omitted.
+
 ## 0.1.0 - 2026-08-26
 
 ### Added

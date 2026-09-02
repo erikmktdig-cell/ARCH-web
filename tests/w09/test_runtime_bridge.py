@@ -28,7 +28,8 @@ from arch_web import (
     verify_deployment,
 )
 from arch_web.domain.workspace import ReconciliationStatus
-from w02.factories import REQUEST_ID
+from runtime_authority import runtime_project
+from w02.factories import PROJECT_ID, REQUEST_ID
 from w09.factories import SHA_A, prepare_command, provider, target
 
 
@@ -38,6 +39,16 @@ class FakeRuntime:
         self.failure = failure
         self.commands: list[ApplyTransitionCommand] = []
         self.saved: dict[str, tuple[dict[str, object], ApplyTransitionResult]] = {}
+        self.project = runtime_project(
+            WebLifecycleStatus.RELEASE_READY,
+            project_id=PROJECT_ID,
+            record_version=10,
+            record_fingerprint=SHA_A,
+            content_fingerprint="sha256:" + "d" * 64,
+        )
+
+    def get_project(self, project_id: object) -> object:
+        return self.project
 
     def apply_transition(self, command: ApplyTransitionCommand) -> ApplyTransitionResult:
         if self.failure is not None:
@@ -98,7 +109,7 @@ def _command(bundle: tuple[object, ...], **changes: object) -> ApproveDeployment
         "idempotency_key": "web:deployment:approve:1",
         "request_id": REQUEST_ID,
         "transition_key": "web.release.deployed",
-        "expected_runtime_state": "release_ready",
+        "expected_runtime_state": "RELEASE_READY",
         "expected_record_version": 10,
         "expected_record_fingerprint": SHA_A,
         "expected_content_fingerprint": "sha256:" + "d" * 64,
@@ -119,7 +130,7 @@ def test_runtime_transition_occurs_only_after_exact_verification(tmp_path: Path)
         assert result.package.approved
         metadata = runtime.commands[0].metadata
         assert metadata["web_transition"] == "RELEASE_READY->DEPLOYED"
-        assert metadata["blocking_finding_count"] == 0
+        assert metadata["blocking_finding_count"] == "0"
         assert metadata["artifact_digest"] == bundle[0].artifacts[0].digest  # type: ignore[attr-defined]
     finally:
         adapter.close()  # type: ignore[attr-defined]

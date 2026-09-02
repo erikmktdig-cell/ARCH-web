@@ -22,6 +22,20 @@ The dependency direction is intentionally one-way:
 arch-web -> arch-runtime v0.1.x -> arch-kernel v0.1.x
 ```
 
+## Runtime lifecycle authority
+
+The Web lifecycle is the closed, namespaced Runtime workflow
+`arch_web.project_lifecycle`; it is not Kernel `PhaseStatus` and does not use the
+phase-oriented `PROJECT_LIFECYCLE` domain. After creating the Runtime project, callers must
+explicitly invoke `initialize_web_lifecycle(...)`, which initializes only `DRAFT` and binds the
+canonical workflow identity, version, and definition fingerprint.
+
+Every W02-W09 approval bridge reads the authoritative `WorkflowStateRecord` from Runtime before
+requesting an adjacent transition. Caller status fields are assertions only. Aggregate and target
+workflow CAS evidence are both bound to the request, including exact idempotent retries. Runtime
+metadata crosses the boundary as `dict[str, str]`; structured evidence is encoded as deterministic
+canonical JSON text and absent optional values are omitted.
+
 WP-W01 includes project, stack, requirement, surface, route, information architecture,
 design, evidence, and integrity-aware reference contracts. It provides pure canonical JSON
 encoding, decoding, validation, and SHA-256 fingerprints. It does not implement workflows,

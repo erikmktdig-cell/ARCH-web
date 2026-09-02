@@ -30,6 +30,7 @@ from arch_web import (
     approve_implementation_readiness,
     prepare_workspace,
 )
+from runtime_authority import runtime_project
 from w02.factories import PROJECT_ID, REQUEST_ID
 from w05.factories import workspace_command
 
@@ -44,6 +45,16 @@ class FakeRuntime:
         self.commands: list[ApplyTransitionCommand] = []
         self.completed: dict[str, tuple[dict[str, object], ApplyTransitionResult]] = {}
         self.error: Exception | None = None
+        self.project = runtime_project(
+            WebLifecycleStatus.UI_APPROVED,
+            project_id=PROJECT_ID,
+            record_version=4,
+            record_fingerprint=f"sha256:{'a' * 64}",
+            content_fingerprint=f"sha256:{'b' * 64}",
+        )
+
+    def get_project(self, project_id: object) -> object:
+        return self.project
 
     def apply_transition(self, command: ApplyTransitionCommand) -> ApplyTransitionResult:
         if self.error is not None:
@@ -91,7 +102,7 @@ def approval_command(root: Path, **changes: object) -> ApproveImplementationRead
         "idempotency_key": "web:implementation-ready:1",
         "request_id": REQUEST_ID,
         "transition_key": "web.implementation_ready",
-        "expected_runtime_state": "not_started",
+        "expected_runtime_state": "UI_APPROVED",
         "expected_record_version": 4,
         "expected_record_fingerprint": f"sha256:{'a' * 64}",
         "expected_content_fingerprint": f"sha256:{'b' * 64}",
@@ -110,7 +121,7 @@ def test_runtime_is_only_implementation_ready_authority(tmp_path: Path) -> None:
     metadata = runtime.commands[0].metadata
     assert metadata["web_transition"] == "UI_APPROVED->IMPLEMENTATION_READY"
     assert metadata["execution_outcome"] == "applied"
-    assert metadata["blocking_finding_count"] == 0
+    assert metadata["blocking_finding_count"] == "0"
 
 
 def test_runtime_domain_rejection_leaves_workspace_only_prepared(tmp_path: Path) -> None:
@@ -146,7 +157,7 @@ def test_runtime_infrastructure_errors_propagate(
 @pytest.mark.parametrize(
     ("field", "value", "message"),
     [
-        ("project_status", WebLifecycleStatus.ARCHITECTURE_APPROVED, "UI_APPROVED"),
+        ("project_status", WebLifecycleStatus.ARCHITECTURE_APPROVED, "Caller lifecycle"),
         ("project_id", "different", "identity"),
         ("expected_plan_fingerprint", "0" * 64, "plan"),
         ("expected_receipt_fingerprint", "0" * 64, "receipt"),
