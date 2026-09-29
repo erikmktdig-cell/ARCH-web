@@ -33,12 +33,14 @@ def test_release_manifest_records_exact_external_evidence() -> None:
         hosted_ci={"run": "pending"},
         security_audit="pass",
         governance={"branch_protection": "pending"},
+        quality_gates={"pytest": "pending"},
     )
     assert manifest["baseline_commit"] == BASELINE_COMMIT
     assert manifest["final_release_commit"] == "a" * 40
     assert manifest["artifact_sha256"] == {"arch_web.whl": "b" * 64}
-    assert manifest["arch_runtime_resolved_version"] == "0.1.0"
-    assert manifest["arch_kernel_resolved_version"] == "0.1.0"
+    assert manifest["arch_runtime_resolved_version"] == "0.2.0"
+    assert manifest["arch_kernel_resolved_version"] == "0.2.0"
+    assert manifest["quality_gates"] == {"pytest": "pending"}
 
 
 def test_tracked_source_audit_accepts_release_checkout() -> None:
@@ -46,15 +48,15 @@ def test_tracked_source_audit_accepts_release_checkout() -> None:
 
 
 def test_artifact_inspection_rejects_test_leakage(tmp_path: Path) -> None:
-    wheel = tmp_path / "arch_web-0.1.0-py3-none-any.whl"
+    wheel = tmp_path / "arch_web-0.2.0-py3-none-any.whl"
     with zipfile.ZipFile(wheel, "w") as archive:
         archive.writestr("arch_web/py.typed", "")
         archive.writestr("tests/test_leak.py", "")
-    sdist = tmp_path / "arch_web-0.1.0.tar.gz"
+    sdist = tmp_path / "arch_web-0.2.0.tar.gz"
     with tarfile.open(sdist, "w:gz") as archive:
         for name in (
-            "arch_web-0.1.0/src/arch_web/py.typed",
-            "arch_web-0.1.0/SECURITY.md",
+            "arch_web-0.2.0/src/arch_web/py.typed",
+            "arch_web-0.2.0/SECURITY.md",
         ):
             info = tarfile.TarInfo(name)
             info.size = 0

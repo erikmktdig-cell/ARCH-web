@@ -142,4 +142,4 @@ def test_contract_and_package_versions_are_conceptually_separate() -> None:
     from arch_web import CURRENT_WEB_CONTRACT_VERSION, __version__
 
     assert CURRENT_WEB_CONTRACT_VERSION == "0.1.0"
-    assert __version__ == "0.1.0"
+    assert __version__ == "0.2.0"

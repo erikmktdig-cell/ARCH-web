@@ -9,12 +9,17 @@ import subprocess
 import tarfile
 import zipfile
 from collections.abc import Iterable
-from pathlib import Path
+from email.parser import BytesParser
+from pathlib import Path, PurePosixPath
 from typing import Any
 
+from packaging.requirements import Requirement
+
+from arch_web import __version__
+
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE_COMMIT = "286b7d7b92140159911e1bf5bea3554fcdbb5c15"
-VERSION = "0.1.0"
+BASELINE_COMMIT = "cfa4e9a20780cc00354400f32170fe5fa0aa60c1"
+VERSION = __version__
 FORBIDDEN_PARTS = {
     ".git",
     ".hypothesis",
@@ -77,6 +82,8 @@ def _scan_text(name: str, data: bytes) -> None:
 
 def _wheel_members(path: Path) -> tuple[tuple[str, bytes], ...]:
     with zipfile.ZipFile(path) as archive:
+        if any((item.external_attr >> 16) & 0o170000 == 0o120000 for item in archive.infolist()):
+            raise ReleaseCheckError("symbolic link in wheel")
         return tuple((name, archive.read(name)) for name in archive.namelist())
 
 
@@ -84,6 +91,8 @@ def _sdist_members(path: Path) -> tuple[tuple[str, bytes], ...]:
     members: list[tuple[str, bytes]] = []
     with tarfile.open(path, mode="r:gz") as archive:
         for member in archive.getmembers():
+            if member.issym() or member.islnk():
+                raise ReleaseCheckError("link in sdist")
             if not member.isfile():
                 members.append((member.name, b""))
                 continue
@@ -98,12 +107,25 @@ def _validate_members(path: Path, members: Iterable[tuple[str, bytes]]) -> tuple
     names: list[str] = []
     for name, data in members:
         names.append(name)
+        if (
+            PurePosixPath(name).is_absolute()
+            or ".." in PurePosixPath(name).parts
+            or "\\" in name
+            or ":" in name
+        ):
+            raise ReleaseCheckError(f"unsafe archive path: {name}")
         parts = set(Path(name).parts)
         if parts.intersection(FORBIDDEN_PARTS) or name.endswith(FORBIDDEN_SUFFIXES):
             raise ReleaseCheckError(f"forbidden archive member: {name}")
         if Path(name).name.startswith(".env") or Path(name).name == ".coverage":
             raise ReleaseCheckError(f"forbidden environment or coverage file: {name}")
         _scan_text(f"{path.name}:{name}", data)
+        if name.endswith(("METADATA", "PKG-INFO", "pyproject.toml")):
+            content = data.decode("utf-8")
+            if any(
+                value in content for value in ("file:" + "//", "git+", "editable =", "../ARCH-")
+            ):
+                raise ReleaseCheckError("nonportable source dependency")
     return tuple(names)
 
 
@@ -113,13 +135,35 @@ def inspect_artifacts(directory: Path) -> list[dict[str, Any]]:
         for path in directory.iterdir()
         if path.suffix == ".whl" or path.name.endswith(".tar.gz")
     )
-    if len(artifacts) != 2:
+    expected = {f"arch_web-{VERSION}-py3-none-any.whl", f"arch_web-{VERSION}.tar.gz"}
+    if {artifact.name for artifact in artifacts} != expected:
         raise ReleaseCheckError("release requires exactly one wheel and one sdist")
     inventory: list[dict[str, Any]] = []
     for artifact in artifacts:
         is_wheel = artifact.suffix == ".whl"
         members = _wheel_members(artifact) if is_wheel else _sdist_members(artifact)
         names = _validate_members(artifact, members)
+        metadata = [
+            data for name, data in members if name.endswith((".dist-info/METADATA", "/PKG-INFO"))
+        ]
+        if not metadata:
+            raise ReleaseCheckError("missing distribution metadata")
+        for raw in metadata:
+            parsed = BytesParser().parsebytes(raw)
+            if parsed["Name"] != "arch-web" or parsed["Version"] != VERSION:
+                raise ReleaseCheckError("incorrect package identity")
+            dependencies = [Requirement(value) for value in parsed.get_all("Requires-Dist", [])]
+            if len(dependencies) != 1:
+                raise ReleaseCheckError("unexpected dependencies")
+            dependency = dependencies[0]
+            if (
+                dependency.name != "arch-runtime"
+                or str(dependency.specifier) != "<0.3.0,>=0.2.0"
+                or dependency.url is not None
+                or dependency.marker is not None
+                or dependency.extras
+            ):
+                raise ReleaseCheckError("incorrect Runtime dependency")
         if is_wheel and "arch_web/py.typed" not in names:
             raise ReleaseCheckError("wheel is missing arch_web/py.typed")
         if not is_wheel:
@@ -171,6 +215,7 @@ def release_manifest(
     hosted_ci: dict[str, str],
     security_audit: str,
     governance: dict[str, str],
+    quality_gates: dict[str, str],
 ) -> dict[str, Any]:
     return {
         "schema": "arch-web-release-manifest/v1",
@@ -180,31 +225,20 @@ def release_manifest(
         "baseline_commit": BASELINE_COMMIT,
         "final_release_commit": final_commit,
         "python": ["3.12", "3.13"],
-        "arch_runtime_dependency": "arch-runtime>=0.1.0,<0.2.0",
-        "arch_runtime_resolved_version": "0.1.0",
-        "arch_kernel_resolved_version": "0.1.0",
+        "arch_runtime_dependency": "arch-runtime>=0.2.0,<0.3.0",
+        "arch_runtime_resolved_version": "0.2.0",
+        "arch_kernel_resolved_version": "0.2.0",
         "tests": tests,
         "skips": skips,
         "branch_coverage": branch_coverage,
-        "quality_gates": {
-            "ruff": "pass",
-            "format": "pass",
-            "mypy_strict": "pass",
-            "pytest": "pass",
-            "architecture": "pass",
-            "property": "pass",
-            "release": "pass",
-            "build": "pass",
-            "twine": "pass",
-            "artifact_inspection": "pass",
-        },
+        "quality_gates": quality_gates,
         "artifacts": [item["filename"] for item in artifacts],
         "artifact_sha256": {item["filename"]: item["sha256"] for item in artifacts},
         "clean_install": clean_install,
         "hosted_ci": hosted_ci,
         "security_audit": security_audit,
         "repository": "erikmktdig-cell/ARCH-web",
-        "tag": "v0.1.0",
+        "tag": f"v{VERSION}",
         "tag_peeled_commit": final_commit,
         "github_release": governance.get("github_release", "pending"),
         "governance": governance,

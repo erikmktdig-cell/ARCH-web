@@ -1,6 +1,25 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
+
+### Added
+
+- C04-W release verification against exact published Kernel and Runtime 0.2.0 wheels,
+  isolated full Web lifecycle integration, and a blocking actual-branch coverage gate.
+- Regression coverage for approval preconditions, contract serialization, invalid evidence
+  and immutable release dependency digests; no Web domain behavior changes after C03.
+- C03 canonical `arch_web.project_lifecycle` workflow definition, deterministic adjacent
+  transition registry, explicit Web workflow initialization, and Runtime-backed lifecycle
+  evidence.
+- Real SQLite cross-stack coverage for the complete DRAFT-to-DEPLOYED W02-W09 lifecycle,
+  including aggregate/workflow CAS, event continuity, and exact idempotent replay.
+
+### Fixed
+
+- Web approval bridges now target `WORKFLOW_STATE` instead of the phase-oriented
+  `PROJECT_LIFECYCLE`, and treat caller lifecycle fields only as fail-closed assertions.
+- Runtime metadata is normalized to `dict[str, str]`; structured evidence uses canonical JSON
+  strings and absent optional values are omitted.
 
 ## 0.1.0 - 2026-08-26
 

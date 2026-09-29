@@ -25,6 +25,7 @@ from arch_web import (
     approve_architecture,
     prepare_architecture,
 )
+from runtime_authority import runtime_project
 from w02.factories import PROJECT_ID, REQUEST_ID
 from w03.factories import architecture_command
 
@@ -39,6 +40,16 @@ class FakeRuntime:
         self.commands: list[ApplyTransitionCommand] = []
         self.completed: dict[str, tuple[dict[str, object], ApplyTransitionResult]] = {}
         self.error: Exception | None = None
+        self.project = runtime_project(
+            WebLifecycleStatus.REQUIREMENTS_APPROVED,
+            project_id=PROJECT_ID,
+            record_version=2,
+            record_fingerprint=f"sha256:{'a' * 64}",
+            content_fingerprint=f"sha256:{'b' * 64}",
+        )
+
+    def get_project(self, project_id: object) -> object:
+        return self.project
 
     def apply_transition(self, command: ApplyTransitionCommand) -> ApplyTransitionResult:
         if self.error is not None:
@@ -72,7 +83,7 @@ def approval_command(**changes: object) -> ApproveArchitectureCommand:
         "idempotency_key": "web:architecture:approve:1",
         "request_id": REQUEST_ID,
         "transition_key": "web.architecture_approve",
-        "expected_runtime_state": "not_started",
+        "expected_runtime_state": "REQUIREMENTS_APPROVED",
         "expected_record_version": 2,
         "expected_record_fingerprint": f"sha256:{'a' * 64}",
         "expected_content_fingerprint": f"sha256:{'b' * 64}",
@@ -90,7 +101,7 @@ def test_success_and_rejection_preserve_runtime_authority() -> None:
     assert result.readiness is ArchitectureReadiness.APPROVED
     metadata = accepted.commands[0].metadata
     assert metadata["web_transition"] == "REQUIREMENTS_APPROVED->ARCHITECTURE_APPROVED"
-    assert metadata["blocking_finding_count"] == 0
+    assert metadata["blocking_finding_count"] == "0"
     assert metadata["selected_route"] == "quick"
     rejected = approve_architecture(cast(Runtime, FakeRuntime(_result(False))), approval_command())
     assert not rejected.approved
@@ -119,7 +130,7 @@ def test_runtime_infrastructure_errors_propagate(error_type: type[Exception]) ->
 @pytest.mark.parametrize(
     ("field", "value", "message"),
     [
-        ("project_status", WebLifecycleStatus.DRAFT, "REQUIREMENTS_APPROVED"),
+        ("project_status", WebLifecycleStatus.DRAFT, "Caller lifecycle"),
         ("project_id", "different", "identity"),
         ("expected_requirements_fingerprint", "0" * 64, "Requirements"),
         ("expected_architecture_fingerprint", "0" * 64, "Architecture"),

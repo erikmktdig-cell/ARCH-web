@@ -1,109 +1,63 @@
-"""Exercise installed ARCH Web, Runtime, and Kernel distributions in isolation."""
+"""Run the approved eight-edge scenario using only installed ARCH distributions."""
 
 from __future__ import annotations
 
 import json
+import runpy
 import sys
 from importlib.metadata import distribution
 from pathlib import Path
 
 import arch_kernel
 import arch_runtime
-from arch_kernel.contracts import Route
-from arch_runtime import CreateProjectCommand, Runtime, RuntimeConfig
 
 
-def _is_inside(path: Path, parent: Path) -> bool:
-    try:
-        path.resolve().relative_to(parent.resolve())
-    except ValueError:
-        return False
-    return True
-
-
-def _verify_tag_source(package: str, tag_object: str) -> None:
-    direct_url = distribution(package).read_text("direct_url.json")
-    if direct_url is None:
-        raise RuntimeError(f"{package} has no direct release-source evidence")
-    evidence = json.loads(direct_url)
-    vcs_info = evidence.get("vcs_info", {})
-    if vcs_info.get("requested_revision") != "v0.1.0":
-        raise RuntimeError(f"{package} was not installed from the v0.1.0 tag")
-    if vcs_info.get("commit_id") != tag_object:
-        raise RuntimeError(
-            f"{package} tag object is {vcs_info.get('commit_id')!r}, expected {tag_object!r}"
-        )
-
-
-def main(database: Path) -> None:
-    repository = Path(__file__).resolve().parents[1]
+def main() -> None:
     if any(name == "arch_web" or name.startswith("arch_web.") for name in sys.modules):
-        raise RuntimeError("Runtime or Kernel imported arch_web before the public web import")
-
+        raise RuntimeError("upstream packages imported arch_web")
     import arch_web
-    from arch_web import ArchitectureChoice, WebStackProfile, decode_contract
 
-    if arch_web.__version__ != "0.1.0":
-        raise RuntimeError(f"unexpected arch-web version: {arch_web.__version__}")
-    if arch_runtime.__version__ != "0.1.0":
-        raise RuntimeError(f"unexpected arch-runtime version: {arch_runtime.__version__}")
-    if arch_kernel.__version__ != "0.1.0":
-        raise RuntimeError(f"unexpected arch-kernel version: {arch_kernel.__version__}")
-    _verify_tag_source("arch-runtime", "16e2426e61a19bf695f36f01b94a93f8b0276e18")
-    _verify_tag_source("arch-kernel", "08b9c9bd57d90ee12a6b40e350431ca1c3bb8bc0")
-
+    origins: dict[str, str] = {}
     for package in (arch_web, arch_runtime, arch_kernel):
+        name = package.__name__.replace("_", "-")
+        if distribution(name).version != "0.2.0" or package.__version__ != "0.2.0":
+            raise RuntimeError(f"unexpected distribution version: {name}")
         origin = Path(str(package.__file__)).resolve()
-        if _is_inside(origin, repository):
-            raise RuntimeError(f"package imported from checkout: {origin}")
-    if any(_is_inside(Path(entry), repository) for entry in sys.path if entry):
-        raise RuntimeError("repository checkout leaked onto sys.path")
+        if (
+            not origin.is_relative_to(Path(sys.prefix).resolve())
+            or "site-packages" not in origin.parts
+        ):
+            raise RuntimeError(f"package not installed in isolated environment: {origin}")
+        evidence = json.loads(distribution(name).read_text("direct_url.json") or "{}")
+        if "vcs_info" in evidence or evidence.get("dir_info"):
+            raise RuntimeError(f"source checkout dependency: {name}")
+        origins[name] = str(origin)
 
-    stack = WebStackProfile(
-        contract_version="0.1.0",
-        profile_id="installed-smoke",
-        language="python",
-        frontend_framework=ArchitectureChoice.UNSPECIFIED,
-        rendering_mode=ArchitectureChoice.UNSPECIFIED,
-        package_manager=ArchitectureChoice.UNSPECIFIED,
-        backend_model=ArchitectureChoice.NONE,
-        database_provider=ArchitectureChoice.NONE,
-        auth_provider=ArchitectureChoice.NONE,
-        unit_test_runner=ArchitectureChoice.UNSPECIFIED,
-        e2e_test_runner=ArchitectureChoice.UNSPECIFIED,
-        deployment_target=ArchitectureChoice.UNSPECIFIED,
-        runtime_requirement=ArchitectureChoice.UNSPECIFIED,
-        constraints=("installed-distributions-only",),
-    )
-    if decode_contract(WebStackProfile, stack.canonical_bytes()) != stack:
-        raise RuntimeError("canonical contract round trip failed")
-
-    command = CreateProjectCommand.model_validate(
-        {
-            "idempotency_key": "release:web-smoke:create",
-            "name": "ARCH Web Installed Integration",
-            "slug": "arch-web-installed-integration",
-            "summary": "Verify ARCH Web with the released Runtime and Kernel chain.",
-            "owner": "release-team",
-            "project_type": "web",
-            "criticality": "medium",
-            "default_route": Route.QUICK,
-            "objectives": ("Verify installed release compatibility.",),
-            "constraints": ("Use public imports only.",),
-            "success_criteria": ("Persist and reload Runtime evidence.",),
-            "actor_id": "release:arch-web-smoke",
-        },
-        strict=True,
-    )
-    with Runtime.open(RuntimeConfig(database, initialize_schema=True)) as runtime:
-        created = runtime.create_project(command)
-        loaded = runtime.get_project(created.project_id)
-    if loaded.record_version != 1:
-        raise RuntimeError("Runtime integration returned an unexpected aggregate version")
+    root = Path(__file__).resolve().parent
+    sys.path.insert(0, str(root / "tests"))
+    scenario = root / "scenario"
+    scenario.mkdir()
+    namespace = runpy.run_path(str(root / "tests" / "c03" / "test_sqlite_lifecycle.py"))
+    namespace["test_real_sqlite_executes_the_complete_web_lifecycle"](scenario)
     print(
-        arch_web.__version__, arch_runtime.__version__, arch_kernel.__version__, created.project_id
+        json.dumps(
+            {
+                "versions": {name: distribution(name).version for name in origins},
+                "origins": origins,
+                "python": sys.version,
+                "lifecycle": "DRAFT -> DEPLOYED",
+                "adjacent_transitions": 8,
+                "aggregate_version": 10,
+                "workflow_version": 9,
+                "event_count": 10,
+                "every_edge_replay_and_fingerprints": "PASS",
+                "idempotency_cas_string_metadata": "PASS",
+                "provider_execution_and_final_approval": "PASS",
+            },
+            sort_keys=True,
+        )
     )
 
 
 if __name__ == "__main__":
-    main(Path(sys.argv[1]))
+    main()
