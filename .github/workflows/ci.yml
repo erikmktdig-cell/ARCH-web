@@ -55,6 +55,12 @@ jobs:
           cache-dependency-glob: uv.lock
           cache-suffix: ${{ matrix.os }}-${{ matrix.python }}
       - run: uv sync --frozen --all-groups --python ${{ matrix.python }}
+      - name: Require provisioned Chrome for real browser QA
+        shell: pwsh
+        run: |
+          $browser = if ($IsWindows) { 'C:\Program Files\Google\Chrome\Application\chrome.exe' } else { '/usr/bin/google-chrome' }
+          if (-not (Test-Path -LiteralPath $browser -PathType Leaf)) { throw "Required CI browser is missing: $browser" }
+          "ARCH_WEB_TEST_BROWSER=$browser" >> $env:GITHUB_ENV
       - run: uv run pytest -p no:cacheprovider --junitxml=build/tests.xml --cov-report=json:build/coverage.json
       - run: uv run python scripts/check_branch_coverage.py build/coverage.json
 

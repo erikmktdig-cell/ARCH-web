@@ -90,3 +90,17 @@ The sole production-file change after C03 is the distribution version constant.
 These results are candidate evidence, not final-main release evidence. Remote matrix,
 independent latest-push review, protected merge, exact-final-main CI, final artifact manifest,
 tag and publication remain separate mandatory gates. No v0.2.0 release is asserted here.
+
+## Hosted Candidate Correction
+
+Run `36527331957` correctly blocked publication: Ubuntu's optional browser auto-discovery
+skipped the real-browser test and left actual branch coverage at 88.99%; Windows 3.13
+reported an INCONCLUSIVE browser result. Build, security, focused suites and all isolated
+installation jobs passed. The candidate was not tagged or merged.
+
+The test matrix now requires an explicit provisioned Chrome executable on both operating
+systems instead of relying on optional discovery. A missing configured executable fails
+the job. The browser test retains its strict PASS assertion and includes sanitized
+per-scenario diagnostics on failure; no retries or INCONCLUSIVE-to-PASS conversion were
+added. Local explicit-Chrome verification: all nine W08 workflow tests passed. This is
+test/CI configuration hardening only, not a production adapter change.
