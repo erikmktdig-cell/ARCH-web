@@ -4,22 +4,24 @@
 
 ## Installation
 
-ARCH Web 0.1.x supports Python 3.12 and 3.13:
+ARCH Web 0.2.x supports Python 3.12 and 3.13. Until publication on a package index,
+install the verified GitHub Release wheels together:
 
 ```console
-python -m pip install "arch-web>=0.1.0,<0.2.0"
+python -m pip install arch_kernel-0.2.0-py3-none-any.whl arch_runtime-0.2.0-py3-none-any.whl arch_web-0.2.0-py3-none-any.whl
 ```
 
-The supported release chain is `arch-web 0.1.x` -> `arch-runtime 0.1.x` ->
-`arch-kernel 0.1.x`. Package metadata uses compatible release ranges; development and CI pin the
-approved `v0.1.0` Git tags until all distributions are available from the package index. Minor
-`0.1.x` releases may add compatible contracts and fixes. Breaking public-contract changes require
+The supported release chain is `arch-web 0.2.x` -> `arch-runtime 0.2.x` ->
+`arch-kernel 0.2.x`. Package metadata requires `arch-runtime>=0.2.0,<0.3.0`;
+development and CI pin the exact released 0.2.0 dependency wheels and their hashes in the lock.
+Web contract payload versions remain unchanged; distribution version is a separate concept.
+Minor `0.2.x` releases may add compatible contracts and fixes. Breaking public-contract changes require
 a new minor line while the project remains below 1.0.
 
 The dependency direction is intentionally one-way:
 
 ```text
-arch-web -> arch-runtime v0.1.x -> arch-kernel v0.1.x
+arch-web -> arch-runtime v0.2.x -> arch-kernel v0.2.x
 ```
 
 ## Runtime lifecycle authority

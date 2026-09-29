@@ -42,7 +42,7 @@ def test_wheel_and_sdist_contain_only_intended_release_files(tmp_path: Path) -> 
     assert "arch_web/py.typed" in wheel_names
     assert not any(name.startswith(("tests/", "src/")) for name in wheel_names)
     assert "Requires-Python: <3.14,>=3.12" in metadata
-    assert "Requires-Dist: arch-runtime<0.2.0,>=0.1.0" in metadata
+    assert "Requires-Dist: arch-runtime<0.3.0,>=0.2.0" in metadata
 
     with tarfile.open(sdist, mode="r:gz") as archive:
         sdist_names = {Path(name).as_posix() for name in archive.getnames()}

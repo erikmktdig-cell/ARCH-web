@@ -1,9 +1,13 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
 ### Added
 
+- C04-W release verification against exact published Kernel and Runtime 0.2.0 wheels,
+  isolated full Web lifecycle integration, and a blocking actual-branch coverage gate.
+- Regression coverage for approval preconditions, contract serialization, invalid evidence
+  and immutable release dependency digests; no Web domain behavior changes after C03.
 - C03 canonical `arch_web.project_lifecycle` workflow definition, deterministic adjacent
   transition registry, explicit Web workflow initialization, and Runtime-backed lifecycle
   evidence.

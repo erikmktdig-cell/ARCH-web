@@ -18,7 +18,7 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Typing :: Typed",
 ]
-dependencies = ["arch-runtime>=0.1.0,<0.2.0"]
+dependencies = ["arch-runtime>=0.2.0,<0.3.0"]
 
 [project.urls]
 Repository = "https://github.com/erikmktdig-cell/ARCH-web"
@@ -38,8 +38,12 @@ dev = [
 ]
 
 [tool.uv.sources]
-arch-runtime = { git = "https://github.com/erikmktdig-cell/ARCH-runtime.git", tag = "v0.1.0" }
-arch-kernel = { git = "https://github.com/erikmktdig-cell/ARCH-kernel.git", tag = "v0.1.0" }
+arch-runtime = { url = "https://github.com/erikmktdig-cell/ARCH-runtime/releases/download/v0.2.0/arch_runtime-0.2.0-py3-none-any.whl" }
+
+[tool.uv]
+override-dependencies = [
+  "arch-kernel @ https://github.com/erikmktdig-cell/ARCH-kernel/releases/download/v0.2.0/arch_kernel-0.2.0-py3-none-any.whl",
+]
 
 [tool.hatch.version]
 path = "src/arch_web/__about__.py"

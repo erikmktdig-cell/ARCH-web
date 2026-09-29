@@ -103,4 +103,4 @@ def test_clean_process_can_import_public_package() -> None:
         text=True,
     )
     assert result.returncode == 0, result.stderr
-    assert result.stdout.strip() == "0.1.0"
+    assert result.stdout.strip() == "0.2.0"
