@@ -55,9 +55,13 @@ Final artifacts must be rebuilt and reverified after the exact final main commit
 
 ## Governance and Stop
 
-Main requires 13 successful checks, one independent approving review, approval of the most
-recent push, admin enforcement, linear history and resolved conversations. Force pushes and
-deletions are forbidden. Do not bypass these requirements to complete publication.
+The owner explicitly authorized a solo-developer policy on 2026-10-20. Main requires a
+pull request and all 13 strict successful checks, admin enforcement, linear history and
+resolved conversations. Required approving reviews are zero and last-push approval is
+disabled. Force pushes and deletions remain forbidden. This narrowly supersedes the prior
+independent-review requirement; no quality, security or artifact gate is waived. Automated
+checks are not equivalent to independent human review. The absence of mandatory independent
+human approval is an accepted limitation recorded in PR #6 and Notion.
 
 Preserve v0.1.0: tag object `d081af853591ef684131f7aed5233b75804f7067`, peeled commit
 `7e882576adb48f302b95200375749915592542c4`.
@@ -88,7 +92,7 @@ JSON rejection. No production behavior, coverage exclusions or skip policy was c
 The sole production-file change after C03 is the distribution version constant.
 
 These results are candidate evidence, not final-main release evidence. Remote matrix,
-independent latest-push review, protected merge, exact-final-main CI, final artifact manifest,
+protected merge under the authorized policy, exact-final-main CI, final artifact manifest,
 tag and publication remain separate mandatory gates. No v0.2.0 release is asserted here.
 
 ## Hosted Candidate Correction
