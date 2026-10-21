@@ -78,7 +78,10 @@ def test_stale_or_unapproved_candidate_fails_closed(
         prepare_qa(mutation(command))
 
 
-def test_real_local_preview_and_headless_browser_vertical_slice(tmp_path: Path) -> None:
+@pytest.mark.parametrize("_startup_trial", range(3))
+def test_real_local_preview_and_headless_browser_vertical_slice(
+    tmp_path: Path, _startup_trial: int
+) -> None:
     _, prepared, profile = qa_bundle(tmp_path)
     configured = os.environ.get("ARCH_WEB_TEST_BROWSER")
     if configured is not None:

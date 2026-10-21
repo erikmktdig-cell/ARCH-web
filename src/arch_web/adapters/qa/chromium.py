@@ -7,6 +7,7 @@ import contextlib
 import hashlib
 import json
 import os
+import re
 import shutil
 import socket
 import struct
@@ -14,7 +15,6 @@ import subprocess
 import tempfile
 import time
 import urllib.parse
-import urllib.request
 from pathlib import Path
 from typing import Any
 
@@ -140,6 +140,14 @@ class _DevToolsSocket:
         self._socket.close()
 
 
+class _BrowserExitedError(OSError):
+    """Browser exited before publishing its private endpoint."""
+
+
+class _EndpointTimeoutError(OSError):
+    """Browser did not publish a valid endpoint within the startup deadline."""
+
+
 class LocalChromiumAdapter:
     """Executes exact typed browser actions against a loopback preview."""
 
@@ -173,9 +181,6 @@ class LocalChromiumAdapter:
         parsed = urllib.parse.urlsplit(endpoint)
         if parsed.hostname not in {"127.0.0.1", "localhost"}:
             raise ValueError("Browser QA endpoint must be loopback")
-        with socket.socket() as reservation:
-            reservation.bind(("127.0.0.1", 0))
-            devtools_port = int(reservation.getsockname()[1])
         with tempfile.TemporaryDirectory(
             prefix="arch-web-qa-", ignore_cleanup_errors=True
         ) as profile:
@@ -188,7 +193,7 @@ class LocalChromiumAdapter:
                 "--no-first-run",
                 "--no-default-browser-check",
                 "--noerrdialogs",
-                f"--remote-debugging-port={devtools_port}",
+                "--remote-debugging-port=0",
                 f"--user-data-dir={profile}",
                 "about:blank",
             ]
@@ -204,7 +209,7 @@ class LocalChromiumAdapter:
             socket_client: _DevToolsSocket | None = None
             stage = "devtools_endpoint"
             try:
-                websocket = self._read_endpoint(process, devtools_port)
+                websocket = self._read_endpoint(process, Path(profile))
                 stage = "websocket_handshake"
                 socket_client = _DevToolsSocket(websocket)
                 stage = "browser_version"
@@ -334,21 +339,29 @@ console.error = (...args) => { window.__archErrors.push('console'); originalErro
                         process.wait(timeout=5)
 
     @staticmethod
-    def _read_endpoint(process: subprocess.Popen[str], port: int) -> str:
+    def _read_endpoint(process: subprocess.Popen[str], profile: Path) -> str:
         deadline = time.monotonic() + 10
+        # Chrome binds its own port and publishes it in this fresh, private profile.
+        # No released-port handoff or proxy-sensitive HTTP discovery is needed.
         while time.monotonic() < deadline:
+            if process.poll() is not None:
+                raise _BrowserExitedError("Browser exited before endpoint readiness")
             try:
-                with urllib.request.urlopen(
-                    f"http://127.0.0.1:{port}/json/version", timeout=0.25
-                ) as response:
-                    payload: object = json.loads(response.read().decode("utf-8"))
-                if isinstance(payload, dict):
-                    endpoint = payload.get("webSocketDebuggerUrl")
-                    if isinstance(endpoint, str):
-                        return endpoint
-            except (OSError, json.JSONDecodeError):
-                time.sleep(0.05)
-        raise OSError("Browser DevTools endpoint unavailable")
+                with (profile / "DevToolsActivePort").open(encoding="ascii") as stream:
+                    content = stream.read(1025)
+                lines = content.splitlines()
+                if (
+                    len(content) <= 1024
+                    and len(lines) == 2
+                    and re.fullmatch(r"[0-9]{1,5}", lines[0])
+                    and 0 < int(lines[0]) <= 65535
+                    and re.fullmatch(r"/devtools/browser/[0-9a-fA-F-]+", lines[1])
+                ):
+                    return f"ws://127.0.0.1:{int(lines[0])}{lines[1]}"
+            except (OSError, UnicodeError):
+                pass
+            time.sleep(0.05)
+        raise _EndpointTimeoutError("Browser DevTools endpoint unavailable")
 
     def _result(
         self,

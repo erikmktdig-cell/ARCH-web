@@ -89,7 +89,8 @@ of 93.95%. The independent branch gate exposed the metric ambiguity. Added regre
 cover approval preconditions, individual domain-record round trips, optional release
 evidence, invalid references, duplicate identities, required human authority and canonical
 JSON rejection. No production behavior, coverage exclusions or skip policy was changed.
-The sole production-file change after C03 is the distribution version constant.
+At that candidate, the sole production-file change after C03 was the distribution version
+constant. The narrowly scoped browser startup correction below supersedes that statement.
 
 These results are candidate evidence, not final-main release evidence. Remote matrix,
 protected merge under the authorized policy, exact-final-main CI, final artifact manifest,
@@ -114,3 +115,32 @@ the job. The browser test retains its strict PASS assertion and includes sanitiz
 per-scenario diagnostics on failure; no retries or INCONCLUSIVE-to-PASS conversion were
 added. Local explicit-Chrome verification: all nine W08 workflow tests passed. This is
 test/CI configuration hardening only, not a production adapter change.
+
+## Browser Startup Release Blocker
+
+The October closeout reproduced `devtools_endpoint:OSError` in Windows 3.13 (main CI
+39533227335 attempt 1) and Ubuntu 3.12 (PR CI 39534092609). A single diagnostic rerun
+of the former passed, but recurrence blocked publication. No tag was created.
+
+Inspection identified a concrete port-ownership race: the adapter reserved an ephemeral
+port, closed its reservation and only then launched Chrome on that port. It also ignored
+process termination while polling an HTTP endpoint. These are independently testable
+defects; the historical logs do not conclusively establish which startup condition caused
+each hosted failure.
+
+The authorized correction is limited to the Chromium startup adapter. Chrome now allocates
+its own port (`--remote-debugging-port=0`) and publishes it in `DevToolsActivePort` inside
+the fresh private profile. Discovery validates bounded ASCII data, a valid port and browser
+path, constructs only a loopback WebSocket URL, handles partial publication and detects
+process exit. The deadline remains ten seconds; no browser relaunch, test retry, timeout
+increase, sandbox disabling or INCONCLUSIVE-to-PASS conversion is introduced.
+
+Fourteen startup regression cases cover valid and partial publication, missing/invalid/
+oversized evidence, early exit, no released-port reservation, sanitized diagnostics and
+profile cleanup. Three independent real-browser vertical cases must all pass on every
+matrix combination. These are repeated assertions, not retries after failure.
+
+Protocol source: https://chromedevtools.github.io/devtools-protocol/index.html
+
+Final release evidence must record this production adapter exception, fresh test counts,
+branch coverage and exact-final-main CI. Earlier artifact hashes are not final release hashes.
