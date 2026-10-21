@@ -100,6 +100,8 @@ class ApproveUISpecificationCommand(WebContractRecord):
     expected_content_fingerprint: str
     actor_id: str
     actor_display_name: str | None = None
+    expected_workflow_record_version: int | None = None
+    expected_workflow_content_fingerprint: str | None = None
 
     def __post_init__(self) -> None:
         for field_name in (
@@ -126,6 +128,18 @@ class ApproveUISpecificationCommand(WebContractRecord):
             require_text(self.actor_display_name, "actor_display_name")
         if self.expected_record_version < 1:
             raise ValueError("expected_record_version must be positive")
+        if (self.expected_workflow_record_version is None) != (
+            self.expected_workflow_content_fingerprint is None
+        ):
+            raise ValueError("workflow preconditions must be supplied together")
+        workflow_fingerprint = self.expected_workflow_content_fingerprint
+        if self.expected_workflow_record_version is not None and workflow_fingerprint is not None:
+            if self.expected_workflow_record_version < 1:
+                raise ValueError("expected_workflow_record_version must be positive")
+            require_text(
+                workflow_fingerprint,
+                "expected_workflow_content_fingerprint",
+            )
 
 
 @dataclass(frozen=True, slots=True)

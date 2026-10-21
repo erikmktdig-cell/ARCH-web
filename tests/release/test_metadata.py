@@ -21,7 +21,7 @@ def test_release_metadata_is_frozen() -> None:
     assert project["name"] == "arch-web"
     assert project["requires-python"] == ">=3.12,<3.14"
     assert project["dynamic"] == ["version"]
-    assert project["dependencies"] == ["arch-runtime>=0.1.0,<0.2.0"]
+    assert project["dependencies"] == ["arch-runtime>=0.2.0,<0.3.0"]
     assert project["urls"] == {
         "Repository": "https://github.com/erikmktdig-cell/ARCH-web",
         "Issues": "https://github.com/erikmktdig-cell/ARCH-web/issues",
@@ -62,8 +62,8 @@ def test_lock_has_no_editable_or_local_checkout_source() -> None:
     packages = {item["name"]: item for item in cast(list[dict[str, object]], lock["package"])}
     assert packages["arch-web"]["source"] == {"editable": "."}
     assert packages["arch-runtime"]["source"] == {
-        "git": "https://github.com/erikmktdig-cell/ARCH-runtime.git?tag=v0.1.0#16e2426e61a19bf695f36f01b94a93f8b0276e18"
+        "url": "https://github.com/erikmktdig-cell/ARCH-runtime/releases/download/v0.2.0/arch_runtime-0.2.0-py3-none-any.whl"
     }
     assert packages["arch-kernel"]["source"] == {
-        "git": "https://github.com/erikmktdig-cell/ARCH-kernel.git?tag=v0.1.0#08b9c9bd57d90ee12a6b40e350431ca1c3bb8bc0"
+        "url": "https://github.com/erikmktdig-cell/ARCH-kernel/releases/download/v0.2.0/arch_kernel-0.2.0-py3-none-any.whl"
     }

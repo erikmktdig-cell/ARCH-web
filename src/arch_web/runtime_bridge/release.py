@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from arch_kernel.contracts import ChangeId, ProjectId, TransitionDomain, TransitionTarget
-from arch_runtime import ApplyTransitionCommand, Runtime
+from arch_runtime import Runtime
 
 from arch_web.application.architecture.planning import semantic_id
 from arch_web.application.release.errors import DeploymentApprovalError
@@ -16,6 +15,11 @@ from arch_web.domain.release import (
     ReleaseReadiness,
 )
 from arch_web.domain.workspace import ReconciliationStatus
+from arch_web.runtime_bridge.runtime_metadata import build_runtime_metadata
+from arch_web.runtime_bridge.workflow import (
+    WebWorkflowAuthorityError,
+    build_web_transition_command,
+)
 
 
 def approve_deployment(
@@ -28,8 +32,6 @@ def approve_deployment(
     authorization = command.authorization
     receipt = command.receipt
     verification = command.verification
-    if command.project_status is not WebLifecycleStatus.RELEASE_READY:
-        raise DeploymentApprovalError("Deployment approval requires RELEASE_READY")
     if candidate.runtime_state is not WebLifecycleStatus.RELEASE_READY:
         raise DeploymentApprovalError("Release candidate is not frozen from RELEASE_READY")
     if prepared.review.readiness is not ReleaseReadiness.READY_FOR_EXECUTION:
@@ -96,41 +98,47 @@ def approve_deployment(
         command.approval_evidence,
         True,
     )
-    metadata: dict[str, object] = {
-        "web_transition": "RELEASE_READY->DEPLOYED",
-        "release_candidate_fingerprint": candidate.canonical_fingerprint(),
-        "release_readiness_fingerprint": candidate.release_readiness.canonical_fingerprint(),
-        "deployment_plan_fingerprint": plan.canonical_fingerprint(),
-        "deployment_authorization_fingerprint": authorization.canonical_fingerprint(),
-        "deployment_receipt_fingerprint": receipt.canonical_fingerprint(),
-        "post_deploy_verification_fingerprint": verification.evidence.canonical_fingerprint(),
-        "deployment_approval_fingerprint": package.canonical_fingerprint(),
-        "environment_id": command.target.environment_id,
-        "provider_profile_id": receipt.provider_profile_id,
-        "artifact_digest": receipt.artifact_digest,
-        "reconciliation_status": receipt.reconciliation_status.value,
-        "blocking_finding_count": 0,
-        "approval_evidence_refs": [item.canonical_data() for item in command.approval_evidence],
-    }
-    runtime_command = ApplyTransitionCommand.model_validate(
-        {
-            "idempotency_key": command.idempotency_key,
-            "project_id": ProjectId(candidate.project_id),
-            "request_id": ChangeId(command.request_id),
-            "target": TransitionTarget(
-                domain=TransitionDomain.PROJECT_LIFECYCLE, entity_id=ProjectId(candidate.project_id)
-            ),
-            "transition_key": command.transition_key,
-            "expected_from_state": command.expected_runtime_state,
-            "expected_record_version": command.expected_record_version,
-            "expected_record_fingerprint": command.expected_record_fingerprint,
-            "expected_content_fingerprint": command.expected_content_fingerprint,
-            "metadata": metadata,
-            "actor_id": command.actor_id,
-            "actor_display_name": command.actor_display_name,
+    metadata = build_runtime_metadata(
+        strings={
+            "web_transition": "RELEASE_READY->DEPLOYED",
+            "release_candidate_fingerprint": candidate.canonical_fingerprint(),
+            "release_readiness_fingerprint": candidate.release_readiness.canonical_fingerprint(),
+            "deployment_plan_fingerprint": plan.canonical_fingerprint(),
+            "deployment_authorization_fingerprint": authorization.canonical_fingerprint(),
+            "deployment_receipt_fingerprint": receipt.canonical_fingerprint(),
+            "post_deploy_verification_fingerprint": verification.evidence.canonical_fingerprint(),
+            "deployment_approval_fingerprint": package.canonical_fingerprint(),
+            "environment_id": command.target.environment_id,
+            "provider_profile_id": receipt.provider_profile_id,
+            "artifact_digest": receipt.artifact_digest,
+            "reconciliation_status": receipt.reconciliation_status.value,
         },
-        strict=True,
+        integers={"blocking_finding_count": 0},
+        structured={
+            "approval_evidence_refs": [item.canonical_data() for item in command.approval_evidence]
+        },
     )
+    try:
+        runtime_command = build_web_transition_command(
+            runtime,
+            project_id=candidate.project_id,
+            asserted_status=command.project_status,
+            asserted_runtime_state=command.expected_runtime_state,
+            destination=WebLifecycleStatus.DEPLOYED,
+            transition_key=command.transition_key,
+            idempotency_key=command.idempotency_key,
+            request_id=command.request_id,
+            expected_record_version=command.expected_record_version,
+            expected_record_fingerprint=command.expected_record_fingerprint,
+            expected_content_fingerprint=command.expected_content_fingerprint,
+            expected_workflow_record_version=command.expected_workflow_record_version,
+            expected_workflow_content_fingerprint=(command.expected_workflow_content_fingerprint),
+            metadata=metadata,
+            actor_id=command.actor_id,
+            actor_display_name=command.actor_display_name,
+        )
+    except WebWorkflowAuthorityError as error:
+        raise DeploymentApprovalError(str(error)) from error
     result = runtime.apply_transition(runtime_command)
     return ApproveDeploymentResult(package, result)
 

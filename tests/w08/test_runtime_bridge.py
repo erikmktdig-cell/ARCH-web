@@ -23,7 +23,8 @@ from arch_web import (
     approve_release_readiness,
     authorize_testing,
 )
-from w02.factories import REQUEST_ID
+from runtime_authority import runtime_project
+from w02.factories import PROJECT_ID, REQUEST_ID
 from w08.factories import qa_bundle
 from w08.fakes import SequencedBrowser
 from w08.test_aggregation import _execute
@@ -34,11 +35,38 @@ def _result(success: bool) -> ApplyTransitionResult:
 
 
 class FakeRuntime:
-    def __init__(self, success: bool = True, *, failure: Exception | None = None) -> None:
+    def __init__(
+        self,
+        success: bool = True,
+        *,
+        failure: Exception | None = None,
+        status: WebLifecycleStatus = WebLifecycleStatus.IMPLEMENTING,
+    ) -> None:
         self.result = _result(success)
         self.failure = failure
         self.commands: list[ApplyTransitionCommand] = []
         self.saved: dict[str, tuple[dict[str, object], ApplyTransitionResult]] = {}
+        version = 8 if status is WebLifecycleStatus.IMPLEMENTING else 9
+        record_fingerprint = (
+            "sha256:" + "c" * 64
+            if status is WebLifecycleStatus.IMPLEMENTING
+            else "sha256:" + "e" * 64
+        )
+        content_fingerprint = (
+            "sha256:" + "d" * 64
+            if status is WebLifecycleStatus.IMPLEMENTING
+            else "sha256:" + "f" * 64
+        )
+        self.project = runtime_project(
+            status,
+            project_id=PROJECT_ID,
+            record_version=version,
+            record_fingerprint=record_fingerprint,
+            content_fingerprint=content_fingerprint,
+        )
+
+    def get_project(self, project_id: object) -> object:
+        return self.project
 
     def apply_transition(self, command: ApplyTransitionCommand) -> ApplyTransitionResult:
         if self.failure is not None:
@@ -65,7 +93,7 @@ def _authorize_command(prepared: PrepareQAResult, **changes: object) -> Authoriz
         "idempotency_key": "web:qa:authorize:1",
         "request_id": REQUEST_ID,
         "transition_key": "web.qa.testing",
-        "expected_runtime_state": "implementing",
+        "expected_runtime_state": "IMPLEMENTING",
         "expected_record_version": candidate.runtime_record_version,
         "expected_record_fingerprint": candidate.runtime_record_fingerprint,
         "expected_content_fingerprint": "sha256:" + "d" * 64,
@@ -91,7 +119,7 @@ def _release_command(
         "idempotency_key": "web:qa:release-ready:1",
         "request_id": REQUEST_ID,
         "transition_key": "web.qa.release_ready",
-        "expected_runtime_state": "testing",
+        "expected_runtime_state": "TESTING",
         "expected_record_version": 9,
         "expected_record_fingerprint": "sha256:" + "e" * 64,
         "expected_content_fingerprint": "sha256:" + "f" * 64,
@@ -130,7 +158,7 @@ def test_runtime_rejection_and_exact_retry_are_preserved(tmp_path: Path) -> None
 @pytest.mark.parametrize(
     ("changes", "message"),
     [
-        ({"project_status": WebLifecycleStatus.TESTING}, "IMPLEMENTING"),
+        ({"project_status": WebLifecycleStatus.TESTING}, "Caller lifecycle"),
         ({"expected_record_version": 99}, "stale"),
         ({"expected_record_fingerprint": "sha256:stale"}, "stale"),
     ],
@@ -148,13 +176,13 @@ def test_stale_testing_authorization_never_calls_runtime(
 def test_release_readiness_transition_binds_exact_qa_evidence(tmp_path: Path) -> None:
     _, prepared, profile = qa_bundle(tmp_path)
     executed = _execute(prepared, profile, SequencedBrowser((QAStatus.PASS,)))
-    runtime = FakeRuntime()
+    runtime = FakeRuntime(status=WebLifecycleStatus.TESTING)
     result = approve_release_readiness(cast(Runtime, runtime), _release_command(prepared, executed))
     assert result.runtime_result.success
     assert result.package.runtime_state is WebLifecycleStatus.TESTING
     metadata = runtime.commands[0].metadata
     assert metadata["web_transition"] == "TESTING->RELEASE_READY"
-    assert metadata["blocking_finding_count"] == 0
+    assert metadata["blocking_finding_count"] == "0"
     assert metadata["release_readiness_fingerprint"] == result.package.canonical_fingerprint()
 
 
@@ -186,7 +214,9 @@ def test_release_readiness_rejects_stale_or_blocked_evidence(
     changed_execution = cast(ExecuteQAResult, changes.pop("executed", executed))
     command = _release_command(prepared, changed_execution, **changes)
     with pytest.raises((QAApprovalError, ValueError)):
-        approve_release_readiness(cast(Runtime, FakeRuntime()), command)
+        approve_release_readiness(
+            cast(Runtime, FakeRuntime(status=WebLifecycleStatus.TESTING)), command
+        )
 
 
 def test_infrastructure_failure_is_not_converted_to_domain_result(tmp_path: Path) -> None:

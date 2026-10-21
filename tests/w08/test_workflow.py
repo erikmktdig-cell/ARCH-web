@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path
@@ -79,7 +80,10 @@ def test_stale_or_unapproved_candidate_fails_closed(
 
 def test_real_local_preview_and_headless_browser_vertical_slice(tmp_path: Path) -> None:
     _, prepared, profile = qa_bundle(tmp_path)
-    browser = LocalChromiumAdapter()
+    configured = os.environ.get("ARCH_WEB_TEST_BROWSER")
+    if configured is not None:
+        assert Path(configured).is_file(), "Configured CI browser is missing"
+    browser = LocalChromiumAdapter(Path(configured) if configured else None)
     if not browser.available:
         pytest.skip("No locally provisioned Chromium browser")
     result = execute_qa(
@@ -107,7 +111,10 @@ def test_real_local_preview_and_headless_browser_vertical_slice(tmp_path: Path) 
     assert result.preview.ready
     assert result.preview.cleanup_verified
     assert result.run.results
-    assert {item.status for item in result.run.results} == {QAStatus.PASS}
+    assert {item.status for item in result.run.results} == {QAStatus.PASS}, [
+        (item.scenario_ref, item.viewport_ref, item.status, item.sanitized_diagnostics)
+        for item in result.run.results
+    ]
     assert result.accessibility.status is QAStatus.PASS
     assert result.integration.status is QAStatus.PASS
     assert result.responsive.status is QAStatus.PASS

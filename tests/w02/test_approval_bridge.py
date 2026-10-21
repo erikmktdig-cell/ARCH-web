@@ -29,6 +29,7 @@ from arch_web import (
     approve_requirements,
     prepare_requirements,
 )
+from runtime_authority import runtime_project
 from w02.factories import PROJECT_ID, REQUEST_ID, intake
 
 
@@ -42,6 +43,16 @@ class FakeRuntime:
         self.commands: list[ApplyTransitionCommand] = []
         self.completed: dict[str, tuple[dict[str, object], ApplyTransitionResult]] = {}
         self.error: Exception | None = None
+        self.project = runtime_project(
+            WebLifecycleStatus.DRAFT,
+            project_id=PROJECT_ID,
+            record_version=1,
+            record_fingerprint=f"sha256:{'a' * 64}",
+            content_fingerprint=f"sha256:{'b' * 64}",
+        )
+
+    def get_project(self, project_id: object) -> object:
+        return self.project
 
     def apply_transition(self, command: ApplyTransitionCommand) -> ApplyTransitionResult:
         if self.error is not None:
@@ -74,7 +85,7 @@ def approval_command(**changes: object) -> ApproveRequirementsCommand:
         "idempotency_key": "web:requirements:approve:1",
         "request_id": REQUEST_ID,
         "transition_key": "web.requirements_approve",
-        "expected_runtime_state": "not_started",
+        "expected_runtime_state": "DRAFT",
         "expected_record_version": 1,
         "expected_record_fingerprint": f"sha256:{'a' * 64}",
         "expected_content_fingerprint": f"sha256:{'b' * 64}",
@@ -146,7 +157,7 @@ def test_runtime_errors_propagate_unchanged(
 @pytest.mark.parametrize(
     ("changes", "message"),
     [
-        ({"project_status": WebLifecycleStatus.IMPLEMENTING}, "DRAFT"),
+        ({"project_status": WebLifecycleStatus.IMPLEMENTING}, "Caller lifecycle"),
         ({"project_id": "PRJ-01HZX7M3FQ1T2Q9V8Y6K4C2B1C"}, "identity"),
         ({"expected_requirements_fingerprint": "0" * 64}, "Requirements fingerprint"),
         ({"expected_review_fingerprint": "0" * 64}, "Review fingerprint"),

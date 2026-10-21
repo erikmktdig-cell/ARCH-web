@@ -54,7 +54,7 @@ def test_package_does_not_import_runtime_or_kernel_internals() -> None:
     imports = {imported for path in SOURCE.rglob("*.py") for imported in _imports(path)}
     assert not any(name.startswith("arch_runtime.") for name in imports)
     kernel_imports = {name for name in imports if name.startswith("arch_kernel.")}
-    assert kernel_imports <= {"arch_kernel.contracts"}
+    assert kernel_imports <= {"arch_kernel.contracts", "arch_kernel.kernel"}
 
 
 @pytest.mark.architecture
@@ -434,6 +434,18 @@ def test_public_api_is_deliberately_closed() -> None:
         "execute_deployment",
         "prepare_release",
         "verify_deployment",
+    } | {
+        "InitializeWebLifecycleCommand",
+        "WEB_TRANSITION_DEFINITIONS",
+        "WEB_TRANSITION_REGISTRY",
+        "WEB_WORKFLOW_DEFINITION",
+        "WEB_WORKFLOW_DEFINITION_REGISTRY",
+        "WEB_WORKFLOW_ID",
+        "WEB_WORKFLOW_NAMESPACE",
+        "WebLifecycleEvidence",
+        "WebWorkflowAuthorityError",
+        "initialize_web_lifecycle",
+        "read_web_lifecycle",
     }
     assert not hasattr(arch_web, "decode_contract_data")
     assert not hasattr(arch_web, "to_canonical_data")
