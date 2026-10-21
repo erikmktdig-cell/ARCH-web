@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- Release tooling lock updates certifi to 2026.10.19 and urllib3 to 2.8.0 for
+  PYSEC-2026-4320 and PYSEC-2026-4175/4176/4177; production contracts are unchanged.
 - Web approval bridges now target `WORKFLOW_STATE` instead of the phase-oriented
   `PROJECT_LIFECYCLE`, and treat caller lifecycle fields only as fail-closed assertions.
 - Runtime metadata is normalized to `dict[str, str]`; structured evidence uses canonical JSON

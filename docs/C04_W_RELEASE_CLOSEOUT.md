@@ -97,6 +97,12 @@ tag and publication remain separate mandatory gates. No v0.2.0 release is assert
 
 ## Hosted Candidate Correction
 
+The 2026-10-20 closeout rerun detected four new advisories in the previous lock:
+certifi 2026.7.22 (PYSEC-2026-4320) and urllib3 2.7.0
+(PYSEC-2026-4175, PYSEC-2026-4176, PYSEC-2026-4177). Only these two locked packages
+were updated, to 2026.10.19 and 2.8.0 respectively. The failed candidate was not merged
+or released; fresh security and full matrix evidence are required for the corrected lock.
+
 Run `36527331957` correctly blocked publication: Ubuntu's optional browser auto-discovery
 skipped the real-browser test and left actual branch coverage at 88.99%; Windows 3.13
 reported an INCONCLUSIVE browser result. Build, security, focused suites and all isolated
