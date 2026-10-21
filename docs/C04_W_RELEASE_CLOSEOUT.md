@@ -132,10 +132,14 @@ The authorized correction is limited to the Chromium startup adapter. Chrome now
 its own port (`--remote-debugging-port=0`) and publishes it in `DevToolsActivePort` inside
 the fresh private profile. Discovery validates bounded ASCII data, a valid port and browser
 path, constructs only a loopback WebSocket URL, handles partial publication and detects
-process exit. The deadline remains ten seconds; no browser relaunch, test retry, timeout
-increase, sandbox disabling or INCONCLUSIVE-to-PASS conversion is introduced.
+process exit. The initial correction preserved the ten-second deadline. Diagnostic run
+39535694269 then established that a still-live browser exhausted that deadline on Ubuntu
+3.13 (`_EndpointTimeoutError`), rather than exiting. The readiness budget is now thirty
+seconds for the same process. A dedicated regression publishes the endpoint at twelve
+seconds, and failure cases must still expire at thirty seconds. No browser relaunch,
+test retry, sandbox disabling or INCONCLUSIVE-to-PASS conversion is introduced.
 
-Fourteen startup regression cases cover valid and partial publication, missing/invalid/
+Fifteen startup regression cases cover valid, partial and delayed publication, missing/invalid/
 oversized evidence, early exit, no released-port reservation, sanitized diagnostics and
 profile cleanup. Three independent real-browser vertical cases must all pass on every
 matrix combination. These are repeated assertions, not retries after failure.

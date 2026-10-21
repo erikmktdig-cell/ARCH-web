@@ -18,8 +18,8 @@
 
 - Chromium startup lets the browser allocate its own DevTools port and reads the bounded
   endpoint from its private profile, removing the released-port handoff and HTTP discovery.
-  Startup exit and timeout remain distinct fail-closed diagnostics; the ten-second deadline
-  and strict browser QA assertions are unchanged.
+  Startup exit and timeout remain distinct fail-closed diagnostics. A live cold-start browser
+  has a bounded thirty-second readiness budget; strict browser QA assertions are unchanged.
 - Release tooling lock updates certifi to 2026.10.19 and urllib3 to 2.8.0 for
   PYSEC-2026-4320 and PYSEC-2026-4175/4176/4177; production contracts are unchanged.
 - Web approval bridges now target `WORKFLOW_STATE` instead of the phase-oriented

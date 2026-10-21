@@ -340,7 +340,7 @@ console.error = (...args) => { window.__archErrors.push('console'); originalErro
 
     @staticmethod
     def _read_endpoint(process: subprocess.Popen[str], profile: Path) -> str:
-        deadline = time.monotonic() + 10
+        deadline = time.monotonic() + 30
         # Chrome binds its own port and publishes it in this fresh, private profile.
         # No released-port handoff or proxy-sensitive HTTP discovery is needed.
         while time.monotonic() < deadline:

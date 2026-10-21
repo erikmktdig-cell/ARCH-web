@@ -53,6 +53,27 @@ def test_partial_publication_is_polled_within_same_deadline(
     assert now[0] == 0.1
 
 
+def test_live_cold_start_can_publish_after_old_ten_second_limit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    now = clock(monkeypatch)
+    process = Mock()
+    process.poll.return_value = None
+
+    def publish(seconds: float) -> None:
+        now[0] += seconds
+        if now[0] >= 12:
+            (tmp_path / "DevToolsActivePort").write_text(
+                "45678\n/devtools/browser/abc-123\n", encoding="ascii"
+            )
+
+    monkeypatch.setattr("arch_web.adapters.qa.chromium.time.sleep", publish)
+    assert LocalChromiumAdapter._read_endpoint(process, tmp_path).startswith(
+        "ws://127.0.0.1:45678/"
+    )
+    assert 12 <= now[0] < 12.1
+
+
 @pytest.mark.parametrize(
     "content",
     [
@@ -76,7 +97,7 @@ def test_invalid_endpoint_never_connects_and_times_out(
     process.poll.return_value = None
     with pytest.raises(chromium._EndpointTimeoutError):
         LocalChromiumAdapter._read_endpoint(process, tmp_path)
-    assert 10 <= now[0] < 10.1
+    assert 30 <= now[0] < 30.1
 
 
 def test_exited_browser_cannot_use_stale_file(
@@ -97,7 +118,7 @@ def test_missing_endpoint_times_out(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     process.poll.return_value = None
     with pytest.raises(chromium._EndpointTimeoutError):
         LocalChromiumAdapter._read_endpoint(process, tmp_path)
-    assert 10 <= now[0] < 10.1
+    assert 30 <= now[0] < 30.1
 
 
 def test_browser_owns_port_and_startup_failure_remains_inconclusive(
