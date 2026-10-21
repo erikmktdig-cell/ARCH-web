@@ -114,10 +114,12 @@ def test_real_local_preview_and_headless_browser_vertical_slice(
     assert result.preview.ready
     assert result.preview.cleanup_verified
     assert result.run.results
-    assert {item.status for item in result.run.results} == {QAStatus.PASS}, [
-        (item.scenario_ref, item.viewport_ref, item.status, item.sanitized_diagnostics)
+    failures = [
+        f"{item.viewport_ref}:{','.join(item.sanitized_diagnostics)}"
         for item in result.run.results
+        if item.status is not QAStatus.PASS
     ]
+    assert not failures, " | ".join(failures)
     assert result.accessibility.status is QAStatus.PASS
     assert result.integration.status is QAStatus.PASS
     assert result.responsive.status is QAStatus.PASS
