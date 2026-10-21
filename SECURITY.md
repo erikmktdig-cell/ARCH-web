@@ -2,13 +2,14 @@
 
 ## Supported Versions
 
-Security fixes are considered for the current `0.1.x` release line.
+Security fixes are considered for the current `0.2.x` release line. The `0.1.x` line
+is superseded; consumers should upgrade to `0.2.x` with compatible Kernel and Runtime releases.
 
 ## Reporting a Vulnerability
 
 Report suspected vulnerabilities through
-[GitHub Private Vulnerability Reporting][private-report]. This is the required private channel for
-the `ARCH-web` repository once repository security governance is enabled.
+[GitHub Private Vulnerability Reporting][private-report]. This is the enabled private channel for
+the `ARCH-web` repository.
 
 Do not disclose suspected vulnerabilities through public issues, pull requests, or discussions.
 Maintainers will coordinate assessment, remediation, and disclosure with the reporter through the
